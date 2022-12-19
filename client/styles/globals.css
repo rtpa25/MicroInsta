@@ -1,0 +1,4 @@
+#__next {
+    overflow: hidden;
+    scroll-behavior: auto;
+}
