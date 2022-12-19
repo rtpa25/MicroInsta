@@ -1,5 +1,5 @@
 {
-    "name": "auth",
+    "name": "profile",
     "version": "1.0.0",
     "main": "index.js",
     "license": "MIT",
@@ -8,7 +8,7 @@
         "email": "pandaronit25@gmail.com",
         "url": "https://ronit.pro"
     },
-    "description": "auth service is responsible for registering and logging in users to the app",
+    "description": "profile service is responsible for creation of user profiles and editing of those profiles also responsible to maintain a registry of friends of the every profile",
     "dependencies": {
         "@micro_insta/common": "^1.0.2",
         "@swc/core": "^1.3.23",
@@ -23,6 +23,7 @@
         "express-validator": "^6.14.2",
         "jsonwebtoken": "^8.5.1",
         "mongoose": "^6.8.0",
+        "mongoose-update-if-current": "^1.4.0",
         "node-nats-streaming": "^0.3.2",
         "node-notifier": "^10.0.1",
         "nodemon": "^2.0.20",

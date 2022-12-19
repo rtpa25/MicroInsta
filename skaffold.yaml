@@ -1,0 +1,35 @@
+apiVersion: skaffold/v3
+kind: Config
+deploy: {}
+manifests:
+  rawYaml:
+    - "./infra/k8s/*"
+build:
+  local:
+    push: false
+  artifacts:
+    - image: rtpa25/auth
+      context: auth
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - dest: .
+            src: "src/**/*.ts"
+    - image: rtpa25/profile
+      context: profile
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - dest: .
+            src: "src/**/*.ts"
+    - image: rtpa25/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        infer:
+          - "**/*.ts"
+          - "**/*.tsx"
+          - "**/*.css"

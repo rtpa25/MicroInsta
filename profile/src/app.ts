@@ -1,12 +1,10 @@
 import 'express-async-errors';
 
-import { NotFoundError, errorHandler } from '@micro_insta/common';
+import { NotFoundError, currentUser, errorHandler } from '@micro_insta/common';
 import cookieSession from 'cookie-session';
 import express from 'express';
-import { currentUserRouter } from './routes/current-user';
-import { signinRouter } from './routes/signin';
-import { signoutRouter } from './routes/signout';
-import { signupRouter } from './routes/signup';
+import { updateProfileRouter } from './routes/update-profile';
+import { addFriendRouter } from './routes/add-friend';
 
 const app = express();
 
@@ -21,10 +19,10 @@ app.use(
     })
 );
 
-app.use(signupRouter);
-app.use(signinRouter);
-app.use(signoutRouter);
-app.use(currentUserRouter);
+app.use(currentUser);
+
+app.use(updateProfileRouter);
+app.use(addFriendRouter);
 
 app.all('*', async (_req, _res, _next) => {
     throw new NotFoundError();

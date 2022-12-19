@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { app } from './app';
 import { natsWrapper } from './nats-wrapper';
+import { UserCreatedListener } from './evetns/listeners/user-created-listener';
 
 const bootstrap = async () => {
     if (!process.env.JWT_KEY) {
@@ -38,6 +39,8 @@ const bootstrap = async () => {
 
         process.on('SIGINT', () => natsWrapper.client.close());
         process.on('SIGTERM', () => natsWrapper.client.close());
+
+        new UserCreatedListener(natsWrapper.client).listen();
     } catch (error) {
         console.error(error);
     }

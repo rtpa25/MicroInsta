@@ -2126,6 +2126,11 @@ cookies@0.8.0:
     depd "~2.0.0"
     keygrip "~1.1.0"
 
+core-js@^3.2.1:
+  version "3.26.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.26.1.tgz#7a9816dabd9ee846c1c0fe0e8fcad68f3709134e"
+  integrity sha512-21491RRQVzUn0GGM9Z1Jrpr6PNPxPi+Za8OM9q4tksTSnlbXXGKK1nXNg/QvwFYettXvSX6zWKCtHHfjN4puyA==
+
 create-require@^1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/create-require/-/create-require-1.1.1.tgz#c1d7e8f1e5f6cfc9ff65f9cd352d37348756c333"
@@ -3209,7 +3214,7 @@ jws@^3.2.2:
     jwa "^1.4.1"
     safe-buffer "^5.0.1"
 
-kareem@2.5.0:
+kareem@2.5.0, kareem@^2.3.0:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/kareem/-/kareem-2.5.0.tgz#9d2b2272609b0d5b981757fa5794d7ad0ac041b2"
   integrity sha512-rVBUGGwvqg130iwYu8k7lutHuDBFj1yGRdnlE44wEhxAmFBad1zcL66PdWC1raw3tIObY6XWhtv3VL04xQb/cg==
@@ -3458,6 +3463,15 @@ mongodb@~4.11.0:
   optionalDependencies:
     "@aws-sdk/credential-providers" "^3.186.0"
     saslprep "^1.0.3"
+
+mongoose-update-if-current@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/mongoose-update-if-current/-/mongoose-update-if-current-1.4.0.tgz#1bba7b3509791cf98320a5a06556ee01575a7a20"
+  integrity sha512-Rau2nvdiLExqXrSOwMMgDYQgf/fwTJQpPidTcT7C9UMQ282gTKXjDuh5vrjVvVQpfuvkiPis0tGHdXffaD54bg==
+  dependencies:
+    core-js "^3.2.1"
+    kareem "^2.3.0"
+    regenerator-runtime "^0.13.5"
 
 mongoose@^6.8.0:
   version "6.8.0"
@@ -3796,6 +3810,11 @@ readdirp@~3.6.0:
   integrity sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==
   dependencies:
     picomatch "^2.2.1"
+
+regenerator-runtime@^0.13.5:
+  version "0.13.11"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz#f6dca3e7ceec20590d07ada785636a90cdca17f9"
+  integrity sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==
 
 require-directory@^2.1.1:
   version "2.1.1"

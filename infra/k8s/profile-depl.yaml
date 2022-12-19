@@ -1,0 +1,49 @@
+#deployment "auth" created
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: profile
+  template:
+    metadata:
+      labels:
+        app: profile
+    spec:
+      containers:
+        - name: profile
+          image: rtpa25/profile
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+            - name: MONGO_URI
+              value: "mongodb://profile-mongo-srv:27017/profile"
+            - name: NATS_URI
+              value: "nats://nats-srv:4222"
+            - name: NATS_CLUSTER_ID
+              value: "insta"
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+---
+#service "profile-srv" created that enables networking between pods
+apiVersion: v1
+kind: Service
+metadata:
+  name: profile-srv
+spec:
+  selector:
+    app: profile
+  type: ClusterIP
+  ports:
+    - name: profile
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

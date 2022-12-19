@@ -1,0 +1,49 @@
+#deployment "auth" created
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: rtpa25/auth
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+            - name: MONGO_URI
+              value: "mongodb://auth-mongo-srv:27017/auth"
+            - name: NATS_URI
+              value: "nats://nats-srv:4222"
+            - name: NATS_CLUSTER_ID
+              value: "insta"
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+---
+#service "auth-srv" created that enables networking between pods
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-srv
+spec:
+  selector:
+    app: auth
+  type: ClusterIP
+  ports:
+    - name: auth
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

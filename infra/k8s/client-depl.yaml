@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      containers:
+        - name: client
+          image: rtpa25/client
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+            - name: NEXT_PUBLIC_FIREBASE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-key
+                  key: NEXT_PUBLIC_FIREBASE_API_KEY
+            - name: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+              valueFrom:
+                secretKeyRef:
+                  name: auth-domain
+                  key: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+            - name: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: project-id
+                  key: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+            - name: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: storage-bucket
+                  key: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+            - name: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: messaging-sender-id
+                  key: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+            - name: NEXT_PUBLIC_FIREBASE_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-id
+                  key: NEXT_PUBLIC_FIREBASE_APP_ID
+---
+#service "client-svc" created that enables networking between pods
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-srv
+spec:
+  selector:
+    app: client
+  type: ClusterIP
+  ports:
+    - name: client
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
