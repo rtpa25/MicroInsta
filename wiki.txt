@@ -1,0 +1,9 @@
+Steps to publishing a package with yarn
+
+- create a git repository inside the designated folder <if it is inside monorepo then create this git repo after monorepo is created or it will become a submodule>
+- add and commit changes to git
+- yarn login
+- yarn version --patch <bump version according to semantic versioning>
+- yarn build <this command should clean the existing build folder and run tsc to create a new build folder>
+* make sure to switch declaration to true inside tsconfig.json file in order for tsc to emit .d.ts files 
+- yarn publish --access public <default is publishing private packages which ain't free>
