@@ -61,8 +61,6 @@ router.put(
         const { id: currentUserId } = req.currentUser!;
 
         if (currentUserId !== userId) {
-            console.log('Profile not found');
-
             throw new BadRequestError(
                 'You are not authorized to update this profile'
             );

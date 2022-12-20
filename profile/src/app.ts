@@ -7,6 +7,9 @@ import { updateProfileRouter } from './routes/update-profile';
 import { addFriendRouter } from './routes/add-friend';
 import { acceptFriendRequestRouter } from './routes/accept-friend-request';
 import { declineFriendRequestRouter } from './routes/decline-friend-request';
+import { findProfileByUserIdRouter } from './routes/find-profile-by-user-id';
+import { findProfilesForSearchFromUsernameRouter } from './routes/find-profiles-for-search-from-username';
+import { deleteProfileRouter } from './routes/delete-profile';
 
 const app = express();
 
@@ -27,6 +30,9 @@ app.use(updateProfileRouter);
 app.use(addFriendRouter);
 app.use(acceptFriendRequestRouter);
 app.use(declineFriendRequestRouter);
+app.use(findProfileByUserIdRouter);
+app.use(findProfilesForSearchFromUsernameRouter);
+app.use(deleteProfileRouter);
 
 app.all('*', async (_req, _res, _next) => {
     throw new NotFoundError();

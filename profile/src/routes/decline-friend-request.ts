@@ -1,5 +1,6 @@
 import {
     BadRequestError,
+    NotAuthorizedError,
     requireAuth,
     validateRequest,
 } from '@micro_insta/common';
@@ -43,7 +44,7 @@ router.put(
         }
 
         if (currentUser.id !== receiverProfile.userId) {
-            throw new BadRequestError('Unauthorized');
+            throw new NotAuthorizedError();
         }
 
         if (senderProfile.friends.includes(receiverProfile._id)) {
