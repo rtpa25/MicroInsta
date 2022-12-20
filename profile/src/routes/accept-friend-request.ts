@@ -3,30 +3,32 @@ import {
     requireAuth,
     validateRequest,
 } from '@micro_insta/common';
-import { Request, Response, Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { body, param } from 'express-validator';
 import { Profile } from '../model/profile';
 
 const router = Router();
 
-interface AddFriendRequestBody {
+interface AcceptFriendRequestRouterBody {
     receiverId: string;
 }
 
 router.put(
-    '/api/profile/add-friend/:senderId',
+    '/api/profile/accept-friend-request/:senderId',
     requireAuth,
     [
-        body('receiverId').isMongoId().withMessage('receiverId must be valid'),
         param('senderId').isMongoId().withMessage('senderId must be valid'),
+        body('receiverId').isMongoId().withMessage('receiverId must be valid'),
     ],
     validateRequest,
     async (
-        req: Request<{ senderId: string }, {}, AddFriendRequestBody>,
+        req: Request<{ senderId: string }, {}, AcceptFriendRequestRouterBody>,
         res: Response
     ) => {
         const { senderId } = req.params;
         const { receiverId } = req.body;
+
+        const currentUser = req.currentUser!;
 
         const senderProfile = await Profile.findOne({ userId: senderId });
 
@@ -40,22 +42,31 @@ router.put(
             throw new BadRequestError('Profile not found');
         }
 
-        if (senderProfile.friends.includes(receiverProfile)) {
+        if (currentUser.id !== receiverProfile.userId) {
+            throw new BadRequestError('Unauthorized');
+        }
+
+        if (senderProfile.friends.includes(receiverProfile._id)) {
             throw new BadRequestError('Already friends');
         }
 
-        if (receiverProfile.friendRequests.includes(senderProfile)) {
-            throw new BadRequestError('Already requested');
+        if (!receiverProfile.friendRequests.includes(senderProfile._id)) {
+            throw new BadRequestError('Not requested');
         }
 
-        receiverProfile.set({
-            friendRequests: [...receiverProfile.friendRequests, senderProfile],
+        senderProfile.set({
+            friends: [...senderProfile.friends, receiverProfile._id],
         });
 
+        receiverProfile.set({
+            friends: [...receiverProfile.friends, senderProfile._id],
+        });
+
+        await senderProfile.save();
         await receiverProfile.save();
 
-        res.status(200).send(receiverProfile);
+        res.status(200).send(senderProfile);
     }
 );
 
-export { router as addFriendRouter };
+export { router as acceptFriendRequestRouter };

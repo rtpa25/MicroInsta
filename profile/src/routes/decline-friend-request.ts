@@ -9,24 +9,26 @@ import { Profile } from '../model/profile';
 
 const router = Router();
 
-interface AddFriendRequestBody {
+interface DeclineFriendRequestRouterBody {
     receiverId: string;
 }
 
 router.put(
-    '/api/profile/add-friend/:senderId',
+    '/api/profile/decline-friend-request/:senderId',
     requireAuth,
     [
-        body('receiverId').isMongoId().withMessage('receiverId must be valid'),
         param('senderId').isMongoId().withMessage('senderId must be valid'),
+        body('receiverId').isMongoId().withMessage('receiverId must be valid'),
     ],
     validateRequest,
     async (
-        req: Request<{ senderId: string }, {}, AddFriendRequestBody>,
+        req: Request<{ senderId: string }, {}, DeclineFriendRequestRouterBody>,
         res: Response
     ) => {
         const { senderId } = req.params;
         const { receiverId } = req.body;
+
+        const currentUser = req.currentUser!;
 
         const senderProfile = await Profile.findOne({ userId: senderId });
 
@@ -40,22 +42,28 @@ router.put(
             throw new BadRequestError('Profile not found');
         }
 
-        if (senderProfile.friends.includes(receiverProfile)) {
+        if (currentUser.id !== receiverProfile.userId) {
+            throw new BadRequestError('Unauthorized');
+        }
+
+        if (senderProfile.friends.includes(receiverProfile._id)) {
             throw new BadRequestError('Already friends');
         }
 
-        if (receiverProfile.friendRequests.includes(senderProfile)) {
-            throw new BadRequestError('Already requested');
+        if (!receiverProfile.friendRequests.includes(senderProfile._id)) {
+            throw new BadRequestError('Not requested');
         }
 
         receiverProfile.set({
-            friendRequests: [...receiverProfile.friendRequests, senderProfile],
+            friendRequests: receiverProfile.friendRequests.filter(
+                (id) => !id.equals(senderProfile._id)
+            ),
         });
 
         await receiverProfile.save();
 
-        res.status(200).send(receiverProfile);
+        res.send(receiverProfile).status(200);
     }
 );
 
-export { router as addFriendRouter };
+export { router as declineFriendRequestRouter };

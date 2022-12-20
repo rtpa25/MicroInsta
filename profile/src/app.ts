@@ -5,6 +5,8 @@ import cookieSession from 'cookie-session';
 import express from 'express';
 import { updateProfileRouter } from './routes/update-profile';
 import { addFriendRouter } from './routes/add-friend';
+import { acceptFriendRequestRouter } from './routes/accept-friend-request';
+import { declineFriendRequestRouter } from './routes/decline-friend-request';
 
 const app = express();
 
@@ -23,6 +25,8 @@ app.use(currentUser);
 
 app.use(updateProfileRouter);
 app.use(addFriendRouter);
+app.use(acceptFriendRequestRouter);
+app.use(declineFriendRequestRouter);
 
 app.all('*', async (_req, _res, _next) => {
     throw new NotFoundError();
