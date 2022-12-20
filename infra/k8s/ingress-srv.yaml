@@ -24,6 +24,34 @@ spec:
                 name: profile-srv
                 port:
                   number: 3000
+          - path: /api/comments/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: comments-srv
+                port:
+                  number: 3000
+          - path: /api/likes/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: likes-srv
+                port:
+                  number: 3000
+          - path: /api/posts/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: posts-srv
+                port:
+                  number: 3000
+          - path: /api/query/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: query-srv
+                port:
+                  number: 3000
           - path: /?(.*)
             pathType: Prefix
             backend:

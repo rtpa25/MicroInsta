@@ -1,21 +1,21 @@
-#deployment "profile" created
+#deployment "query" created
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: profile-depl
+  name: query-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: profile
+      app: query
   template:
     metadata:
       labels:
-        app: profile
+        app: query
     spec:
       containers:
-        - name: profile
-          image: rtpa25/profile
+        - name: query
+          image: rtpa25/query
           env:
             - name: JWT_KEY
               valueFrom:
@@ -23,7 +23,7 @@ spec:
                   name: jwt-secret
                   key: JWT_KEY
             - name: MONGO_URI
-              value: "mongodb://profile-mongo-srv:27017/profile"
+              value: "mongodb://query-mongo-srv:27017/query"
             - name: NATS_URI
               value: "nats://nats-srv:4222"
             - name: NATS_CLUSTER_ID
@@ -33,17 +33,17 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
 ---
-#service "profile-srv" created that enables networking between pods
+#service "query-srv" created that enables networking between pods
 apiVersion: v1
 kind: Service
 metadata:
-  name: profile-srv
+  name: query-srv
 spec:
   selector:
-    app: profile
+    app: query
   type: ClusterIP
   ports:
-    - name: profile
+    - name: query
       protocol: TCP
       port: 3000
       targetPort: 3000

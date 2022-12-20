@@ -1,21 +1,21 @@
-#deployment "profile" created
+#deployment "posts" created
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: profile-depl
+  name: posts-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: profile
+      app: posts
   template:
     metadata:
       labels:
-        app: profile
+        app: posts
     spec:
       containers:
-        - name: profile
-          image: rtpa25/profile
+        - name: posts
+          image: rtpa25/posts
           env:
             - name: JWT_KEY
               valueFrom:
@@ -23,7 +23,7 @@ spec:
                   name: jwt-secret
                   key: JWT_KEY
             - name: MONGO_URI
-              value: "mongodb://profile-mongo-srv:27017/profile"
+              value: "mongodb://posts-mongo-srv:27017/posts"
             - name: NATS_URI
               value: "nats://nats-srv:4222"
             - name: NATS_CLUSTER_ID
@@ -33,17 +33,17 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
 ---
-#service "profile-srv" created that enables networking between pods
+#service "posts-srv" created that enables networking between pods
 apiVersion: v1
 kind: Service
 metadata:
-  name: profile-srv
+  name: posts-srv
 spec:
   selector:
-    app: profile
+    app: posts
   type: ClusterIP
   ports:
-    - name: profile
+    - name: posts
       protocol: TCP
       port: 3000
       targetPort: 3000

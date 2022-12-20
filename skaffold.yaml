@@ -24,6 +24,38 @@ build:
         manual:
           - dest: .
             src: "src/**/*.ts"
+    - image: rtpa25/comments
+      context: comments
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - dest: .
+            src: "src/**/*.ts"
+    - image: rtpa25/likes
+      context: likes
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - dest: .
+            src: "src/**/*.ts"
+    - image: rtpa25/posts
+      context: posts
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - dest: .
+            src: "src/**/*.ts"
+    - image: rtpa25/query
+      context: query
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - dest: .
+            src: "src/**/*.ts"
     - image: rtpa25/client
       context: client
       docker:

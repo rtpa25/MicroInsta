@@ -1,21 +1,21 @@
-#deployment "profile" created
+#deployment "likes" created
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: profile-depl
+  name: likes-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: profile
+      app: likes
   template:
     metadata:
       labels:
-        app: profile
+        app: likes
     spec:
       containers:
-        - name: profile
-          image: rtpa25/profile
+        - name: likes
+          image: rtpa25/likes
           env:
             - name: JWT_KEY
               valueFrom:
@@ -23,7 +23,7 @@ spec:
                   name: jwt-secret
                   key: JWT_KEY
             - name: MONGO_URI
-              value: "mongodb://profile-mongo-srv:27017/profile"
+              value: "mongodb://likes-mongo-srv:27017/likes"
             - name: NATS_URI
               value: "nats://nats-srv:4222"
             - name: NATS_CLUSTER_ID
@@ -33,17 +33,17 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
 ---
-#service "profile-srv" created that enables networking between pods
+#service "likes-srv" created that enables networking between pods
 apiVersion: v1
 kind: Service
 metadata:
-  name: profile-srv
+  name: likes-srv
 spec:
   selector:
-    app: profile
+    app: likes
   type: ClusterIP
   ports:
-    - name: profile
+    - name: likes
       protocol: TCP
       port: 3000
       targetPort: 3000
