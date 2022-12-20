@@ -1304,10 +1304,10 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
-"@micro_insta/common@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@micro_insta/common/-/common-1.0.2.tgz#48b41d33369ed573de52ee1e258a5e2242827214"
-  integrity sha512-t0ANiVb7ol8DcoEWDMGSVsf4vRne6454hvm0qIBhbh16J8LCqs47rzp0GtQYWB5j/sDAdTFdzjWtGmOoeZ9pPw==
+"@micro_insta/common@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@micro_insta/common/-/common-1.0.3.tgz#e475aa3c41032932dda679999d46361e80fd7faa"
+  integrity sha512-b2e7P0ZDrDVCpOrorW5GMXoV52pMMUKQyw/UTeUsL5k4grzVEP88Qia7W1vFzOycnuLyEoExbbZ8NN5OOArpBw==
   dependencies:
     "@types/cookie-session" "^2.0.44"
     "@types/express" "^4.17.14"
