@@ -3,6 +3,8 @@ import 'express-async-errors';
 import { NotFoundError, currentUser, errorHandler } from '@micro_insta/common';
 import cookieSession from 'cookie-session';
 import express from 'express';
+import { newLikeRouter } from './routes/new';
+import { deleteLikeRouter } from './routes/delete';
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use(
 );
 
 app.use(currentUser);
+app.use(newLikeRouter);
+app.use(deleteLikeRouter);
 
 app.all('*', async (_req, _res, _next) => {
     throw new NotFoundError();

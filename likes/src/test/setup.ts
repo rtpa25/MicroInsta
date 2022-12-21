@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 
 declare global {
     var signin: (id: string) => string[];
+    var createMongoId: () => string;
 }
 
 let mongo: MongoMemoryServer;
@@ -26,6 +27,10 @@ global.signin = (id: string) => {
     const base64 = Buffer.from(sessionJSON).toString('base64');
     // return a string thats the cookie with the encoded data
     return [`session=${base64}`]; //array of strings for supertest
+};
+
+global.createMongoId = () => {
+    return new mongoose.Types.ObjectId().toHexString();
 };
 
 beforeAll(async () => {
