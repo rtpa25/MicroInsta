@@ -3,6 +3,8 @@ import 'express-async-errors';
 import { NotFoundError, currentUser, errorHandler } from '@micro_insta/common';
 import cookieSession from 'cookie-session';
 import express from 'express';
+import { indexQueryRouter } from './routes/index-fetch';
+import { detailedQueryRouter } from './routes/detailed-fetch';
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use(
 );
 
 app.use(currentUser);
+app.use(indexQueryRouter);
+app.use(detailedQueryRouter);
 
 app.all('*', async (_req, _res, _next) => {
     throw new NotFoundError();

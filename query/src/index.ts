@@ -1,6 +1,12 @@
 import mongoose from 'mongoose';
 import { app } from './app';
 import { natsWrapper } from './nats-wrapper';
+import { PostCreatedEventListener } from './events/listeners/post-created-event-listener';
+import { PostDeleteDEventListener } from './events/listeners/post-deleted-event-listener';
+import { CommentCreatedEventListener } from './events/listeners/comment-created-event-listener';
+import { CommentDeletedEventListener } from './events/listeners/comment-deleted-event-publisher';
+import { LikeCreatedEventListener } from './events/listeners/like-created-event-lietener';
+import { LikeDeletedEventListener } from './events/listeners/like-deleted-event-listener';
 
 const bootstrap = async () => {
     if (!process.env.JWT_KEY) {
@@ -38,6 +44,13 @@ const bootstrap = async () => {
 
         process.on('SIGINT', () => natsWrapper.client.close());
         process.on('SIGTERM', () => natsWrapper.client.close());
+
+        new PostCreatedEventListener(natsWrapper.client).listen();
+        new PostDeleteDEventListener(natsWrapper.client).listen();
+        new LikeCreatedEventListener(natsWrapper.client).listen();
+        new LikeDeletedEventListener(natsWrapper.client).listen();
+        new CommentCreatedEventListener(natsWrapper.client).listen();
+        new CommentDeletedEventListener(natsWrapper.client).listen();
     } catch (error) {
         console.error(error);
     }
