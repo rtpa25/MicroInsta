@@ -1,11 +1,52 @@
 import { Box, Flex, Heading, Link, Stack, Text } from '@chakra-ui/react';
-import { Form, Formik } from 'formik';
+import axios from 'axios';
+import { Form, Formik, FormikErrors } from 'formik';
+import { useRouter } from 'next/router';
+import useSWRMutation from 'swr/mutation';
 import AccentOutlineButton from '../../components/accent-outline-buttons';
-import InputField from '../../components/input-field';
-import { ACCENT_COLOR_LIGHT, FORM_BG_COLOR } from '../../styles/consts';
 import HeaderLogo from '../../components/header-logo';
+import InputField from '../../components/input-field';
+import { ACCENT_COLOR_LIGHT } from '../../styles/consts';
+import { User } from '../../types/user';
+import { toErrorMap } from '../../utils/to-error-map';
+
+interface SignupRequestBody {
+    arg: {
+        username: string;
+        password: string;
+        email: string;
+    };
+}
+
+const signupRequest = async (url: string, { arg }: SignupRequestBody) => {
+    return axios<User>({
+        method: 'post',
+        url: url,
+        data: arg,
+    });
+};
 
 const SignUp = () => {
+    const { trigger } = useSWRMutation('/api/users/signup', signupRequest);
+    const router = useRouter();
+
+    const submitHandler = async (
+        values: SignupRequestBody['arg'],
+        {
+            setErrors,
+        }: {
+            setErrors: (errors: FormikErrors<SignupRequestBody['arg']>) => void;
+        }
+    ) => {
+        const { email, password, username } = values;
+        try {
+            await trigger({ email, password, username });
+            router.push('/');
+        } catch (error: any) {
+            setErrors(toErrorMap(error.response.data.errors));
+        }
+    };
+
     return (
         <Flex
             justifyContent={'center'}
@@ -32,7 +73,7 @@ const SignUp = () => {
                         password: '',
                         email: '',
                     }}
-                    onSubmit={async (values, { setErrors }) => {}}>
+                    onSubmit={submitHandler}>
                     {({ isSubmitting }) => (
                         <Form>
                             <Box>

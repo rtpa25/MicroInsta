@@ -1,23 +1,51 @@
-import {
-    Box,
-    Button,
-    Flex,
-    Heading,
-    Link,
-    Stack,
-    Text,
-} from '@chakra-ui/react';
-import { Formik, Form } from 'formik';
-import InputField from '../../components/input-field';
-import {
-    ACCENT_COLOR,
-    ACCENT_COLOR_LIGHT,
-    FORM_BG_COLOR,
-} from '../../styles/consts';
+import { Box, Flex, Heading, Link, Stack, Text } from '@chakra-ui/react';
+import axios from 'axios';
+import { Form, Formik, FormikErrors } from 'formik';
+import { useRouter } from 'next/router';
+import useSWRMutation from 'swr/mutation';
 import AccentOutlineButton from '../../components/accent-outline-buttons';
 import HeaderLogo from '../../components/header-logo';
+import InputField from '../../components/input-field';
+import { ACCENT_COLOR_LIGHT } from '../../styles/consts';
+import { User } from '../../types/user';
+import { toErrorMap } from '../../utils/to-error-map';
+
+interface SigninRequestBody {
+    arg: {
+        password: string;
+        email: string;
+    };
+}
+
+const signinRequest = async (url: string, { arg }: SigninRequestBody) => {
+    return axios<User>({
+        method: 'post',
+        url: url,
+        data: arg,
+    });
+};
 
 const SignIn = () => {
+    const { trigger } = useSWRMutation('/api/users/signup', signinRequest);
+    const router = useRouter();
+
+    const submitHandler = async (
+        values: SigninRequestBody['arg'],
+        {
+            setErrors,
+        }: {
+            setErrors: (errors: FormikErrors<SigninRequestBody['arg']>) => void;
+        }
+    ) => {
+        const { email, password } = values;
+        try {
+            await trigger({ email, password });
+            router.push('/');
+        } catch (error: any) {
+            setErrors(toErrorMap(error.response.data.errors));
+        }
+    };
+
     return (
         <Flex
             justifyContent={'center'}
@@ -44,7 +72,7 @@ const SignIn = () => {
                         password: '',
                         email: '',
                     }}
-                    onSubmit={async (values, { setErrors }) => {}}>
+                    onSubmit={submitHandler}>
                     {({ isSubmitting }) => (
                         <Form>
                             <Box>
