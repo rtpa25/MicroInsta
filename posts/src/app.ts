@@ -5,6 +5,7 @@ import cookieSession from 'cookie-session';
 import express from 'express';
 import { newPostRouter } from './routes/new';
 import { deletePostRouter } from './routes/delete';
+import { updatePostRouter } from './routes/update';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(
 app.use(currentUser);
 app.use(newPostRouter);
 app.use(deletePostRouter);
+app.use(updatePostRouter);
 
 app.all('*', async (_req, _res, _next) => {
     throw new NotFoundError();
