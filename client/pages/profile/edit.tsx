@@ -8,23 +8,78 @@ import {
     Text,
     useDisclosure,
 } from '@chakra-ui/react';
+import axios from 'axios';
+import { Form, Formik } from 'formik';
+import { GetServerSidePropsContext } from 'next';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+import useSWR from 'swr';
+import useSWRMutation from 'swr/mutation';
 import AppBar from '../../components/app-bar';
-import { ACCENT_COLOR, ACCENT_COLOR_LIGHT } from '../../styles/consts';
-import { Formik, Form } from 'formik';
-import AccentOutlineButton from '../../components/accent-outline-buttons';
+import { requireAuth } from '../../components/hoc/require-auth';
 import InputField from '../../components/input-field';
 import UpdateProfilePictureModal from '../../components/update-profile-picture-modal';
+import { useGetCurrentUser } from '../../hooks/use-get-current-user';
+import { ACCENT_COLOR, ACCENT_COLOR_LIGHT } from '../../styles/consts';
+import { Profile } from '../../types/profile';
+import { toErrorMap } from '../../utils/to-error-map';
+
+interface EditProfileRequestBody {
+    arg: {
+        fullName: string;
+        bio: string;
+        avatarUrl: string;
+    };
+}
+
+const editProfileRequest = async (
+    url: string,
+    { arg }: EditProfileRequestBody
+) => {
+    return axios<Profile>({
+        method: 'put',
+        url,
+        data: arg,
+    });
+};
+
+const fetchProfileRequest = async (url: string) => {
+    return axios<Profile>({
+        method: 'get',
+        url,
+    });
+};
 
 const Edit = () => {
     const { isOpen, onClose, onOpen } = useDisclosure();
 
+    const [imageUrl, setImageUrl] = useState<string>('');
+
+    const { currentUser } = useGetCurrentUser();
+
+    const { trigger, isMutating } = useSWRMutation(
+        `/api/profile/${currentUser?.id}`,
+        editProfileRequest
+    );
+
+    const { data } = useSWR(
+        `/api/profile/${currentUser?.id}`,
+        fetchProfileRequest
+    );
+
+    const router = useRouter();
+
     return (
         <Box>
             <AppBar />
-            <Box h={'80vh'} maxW={'60%'} mx='auto' bgColor='black' mt={10}>
+            <Box maxW={'60%'} mx='auto' bgColor='black' my={10}>
                 <Flex maxW='75%' mx={'auto'} pt={10} alignItems='center'>
                     <Box mr={10}>
-                        <Avatar size={'lg'} />
+                        <Avatar
+                            size={'lg'}
+                            src={data?.data.avatarUrl || data?.data.username}
+                            name={data?.data.username}
+                        />
                     </Box>
                     <Box>
                         <Heading
@@ -32,7 +87,7 @@ const Edit = () => {
                             color={ACCENT_COLOR}
                             fontFamily='serif'
                             fontSize={['xl', '2xl', '3xl', '4xl']}>
-                            Ronit Panda
+                            {currentUser?.username}
                         </Heading>
                         <Button
                             variant={'link'}
@@ -44,28 +99,36 @@ const Edit = () => {
                 </Flex>
                 <Formik
                     initialValues={{
-                        username: '',
-                        fullname: '',
-                        bio: '',
+                        fullName: data?.data.fullName || '',
+                        bio: data?.data.bio || '',
                     }}
-                    onSubmit={async (values, { setErrors }) => {}}>
+                    onSubmit={async (values, { setErrors }) => {
+                        const { fullName, bio } = values;
+                        if (imageUrl === '' && !data?.data.avatarUrl) {
+                            setErrors({
+                                fullName: 'Please upload a profile picture',
+                            });
+                        }
+                        try {
+                            await trigger({
+                                avatarUrl:
+                                    imageUrl ||
+                                    (data?.data.avatarUrl as string),
+                                fullName,
+                                bio,
+                            });
+                            router.push(`/profile/${currentUser?.id}`);
+                        } catch (error: any) {
+                            setErrors(toErrorMap(error.response.data.errors));
+                        }
+                    }}>
                     {({ isSubmitting }) => (
-                        <Box maxW='75%' mx={'auto'} pt={10}>
+                        <Box maxW='75%' mx={'auto'} py={10}>
                             <Form>
                                 <Box>
                                     <InputField
-                                        name={'username'}
-                                        placeholder={'username'}
-                                        label={'Username'}
-                                        type={'text'}
-                                        isPassword={false}
-                                        showFormLabel={true}
-                                    />
-                                </Box>
-                                <Box mt={4}>
-                                    <InputField
-                                        name={'fullname'}
-                                        placeholder={'fullname'}
+                                        name={'fullName'}
+                                        placeholder={'fullName'}
                                         label={'Full Name'}
                                         type={'text'}
                                         isPassword={false}
@@ -86,15 +149,19 @@ const Edit = () => {
                                 <Flex
                                     justifyContent={'space-between'}
                                     alignItems='baseline'>
-                                    <AccentOutlineButton
-                                        mt={10}
-                                        buttonText={'Save'}
-                                        isLoading={isSubmitting}
-                                    />
+                                    <Button
+                                        variant='outline'
+                                        borderColor={ACCENT_COLOR}
+                                        color={ACCENT_COLOR}
+                                        isLoading={isMutating || isSubmitting}
+                                        type='submit'
+                                        mt={10}>
+                                        Save
+                                    </Button>
                                     <Text>
                                         {'Changed your mind? go'}{' '}
                                         <Link
-                                            href={'/home'}
+                                            href={'/'}
                                             color={ACCENT_COLOR_LIGHT}>
                                             Home
                                         </Link>
@@ -105,9 +172,23 @@ const Edit = () => {
                     )}
                 </Formik>
             </Box>
-            <UpdateProfilePictureModal isOpen={isOpen} onClose={onClose} />
+            <UpdateProfilePictureModal
+                isOpen={isOpen}
+                onClose={onClose}
+                onCreationOfImageUrl={(url: string) => {
+                    setImageUrl(url);
+                }}
+            />
         </Box>
     );
 };
+
+export const getServerSideProps = requireAuth(
+    async ({ req }: GetServerSidePropsContext) => {
+        return {
+            props: {},
+        };
+    }
+);
 
 export default Edit;

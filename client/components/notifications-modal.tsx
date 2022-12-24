@@ -1,23 +1,21 @@
 import {
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalCloseButton,
-    ModalBody,
-    ModalFooter,
-    Button,
     Avatar,
     Box,
-    Flex,
-    Text,
+    Button,
     ButtonGroup,
+    Flex,
+    Modal,
+    ModalBody,
+    ModalCloseButton,
+    ModalContent,
+    ModalHeader,
+    ModalOverlay,
+    Text,
 } from '@chakra-ui/react';
 import { FC } from 'react';
-import { ACCENT_COLOR, ACCENT_COLOR_LIGHT } from '../styles/consts';
 import Autosizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
-import AccentOutlineButton from './accent-outline-buttons';
+import { ACCENT_COLOR, ACCENT_COLOR_LIGHT } from '../styles/consts';
 
 interface NotificationsModalProps {
     isOpen: boolean;
@@ -44,7 +42,6 @@ function renderRow(props: ListChildComponentProps) {
                 </Flex>
 
                 <ButtonGroup gap={4}>
-                    {/* <AccentOutlineButton buttonText={'Accept'} /> */}
                     <Button
                         bgColor={ACCENT_COLOR}
                         color={'black'}

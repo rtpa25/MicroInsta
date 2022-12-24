@@ -1,50 +1,101 @@
 import {
+    Avatar,
+    Box,
+    Flex,
     Input,
     Modal,
     ModalBody,
     ModalContent,
     ModalHeader,
     ModalOverlay,
-    Box,
-    Flex,
-    Avatar,
     Text,
 } from '@chakra-ui/react';
-import { FC } from 'react';
+import axios from 'axios';
+import { FC, useCallback, useState } from 'react';
 import { ACCENT_COLOR, ACCENT_COLOR_LIGHT } from '../styles/consts';
-import Autosizer from 'react-virtualized-auto-sizer';
-import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
+import { Profile } from '../types/profile';
+import { useRouter } from 'next/router';
 
 interface ProfileSearchModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-function renderRow(props: ListChildComponentProps) {
-    const { index, style } = props;
-
-    return (
-        <Box key={index} style={style}>
-            <Flex>
-                <Avatar mr={4} />
-                <Box>
-                    <Text color={'gray.300'}>Ronit Panda</Text>
-                    <Text
-                        color={ACCENT_COLOR_LIGHT}
-                        fontSize='md'
-                        fontWeight={'thin'}>
-                        ronitpanda
-                    </Text>
-                </Box>
-            </Flex>
-        </Box>
-    );
-}
-
 const ProfileSearchModal: FC<ProfileSearchModalProps> = ({
     isOpen,
     onClose,
 }) => {
+    const [searchedProfileUsername, setSearchedProfileUsername] = useState('');
+
+    const [profiles, setProfiles] = useState<Profile[]>([]);
+
+    const findProfiles = async (value: string) => {
+        try {
+            const { data } = await axios.get<Profile[]>(
+                `/api/profile?username=${value}`
+            );
+            setProfiles(data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const optimizedFn = useCallback(() => {
+        const debounce = (
+            func: (value: string) => Promise<void>,
+            delay: number
+        ) => {
+            let timer: NodeJS.Timeout | null;
+
+            return function (...args: any) {
+                const context = this;
+                if (timer) clearTimeout(timer);
+
+                timer = setTimeout(() => {
+                    timer = null;
+                    func.apply(context, args);
+                }, delay);
+            };
+        };
+        return debounce(findProfiles, 500);
+    }, [])();
+
+    const router = useRouter();
+
+    const renderProfiles =
+        profiles.length > 0 ? (
+            profiles.map((profile) => {
+                return (
+                    <Flex
+                        key={profile.userId}
+                        cursor='pointer'
+                        my='4'
+                        onClick={() =>
+                            router.push(`/profile/${profile.userId}`)
+                        }>
+                        <Avatar
+                            mr={4}
+                            name={profile.username}
+                            src={profile.avatarUrl || profile.username}
+                        />
+                        <Box>
+                            <Text color={'gray.300'}>
+                                {profile.fullName || profile.username}
+                            </Text>
+                            <Text
+                                color={ACCENT_COLOR_LIGHT}
+                                fontSize='md'
+                                fontWeight={'thin'}>
+                                {profile.username}
+                            </Text>
+                        </Box>
+                    </Flex>
+                );
+            })
+        ) : (
+            <Box>No such profile found</Box>
+        );
+
     return (
         <Modal
             size={'3xl'}
@@ -57,6 +108,11 @@ const ProfileSearchModal: FC<ProfileSearchModalProps> = ({
                     <Input
                         py={5}
                         type='text'
+                        value={searchedProfileUsername}
+                        onChange={(e) => {
+                            setSearchedProfileUsername(e.target.value);
+                            optimizedFn(e.target.value);
+                        }}
                         _highlighted={{ color: ACCENT_COLOR_LIGHT }}
                         focusBorderColor={'none'}
                         placeholder='Search...'
@@ -67,19 +123,10 @@ const ProfileSearchModal: FC<ProfileSearchModalProps> = ({
                         _placeholder={{ color: 'gray.200' }}
                     />
                 </ModalHeader>
-                <ModalBody h={'full'}>
-                    <Autosizer>
-                        {({ height, width }) => (
-                            <List
-                                height={height}
-                                width={width}
-                                itemSize={80}
-                                itemCount={23}
-                                overscanCount={5}>
-                                {renderRow}
-                            </List>
-                        )}
-                    </Autosizer>
+                <ModalBody h={'80%'}>
+                    <Box overflow={'scroll'} h='full'>
+                        {renderProfiles}
+                    </Box>
                 </ModalBody>
             </ModalContent>
         </Modal>

@@ -1,30 +1,21 @@
 import {
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    Image,
-    ModalCloseButton,
-    ModalBody,
-    ModalFooter,
-    Button,
-    Flex,
-    Box,
-    UnorderedList,
-    ListItem,
     Avatar,
-    Text,
-    InputLeftElement,
-    InputGroup,
-    Input,
-    InputRightElement,
+    Box,
     Divider,
+    Flex,
+    Image,
+    ListItem,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalOverlay,
+    Text,
+    UnorderedList,
 } from '@chakra-ui/react';
-import React, { FC } from 'react';
-import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
+import { FC } from 'react';
 import Autosizer from 'react-virtualized-auto-sizer';
-import { ACCENT_COLOR, ACCENT_COLOR_LIGHT } from '../styles/consts';
-import { AiOutlineSmile } from 'react-icons/ai';
-import AccentOutlineButton from './accent-outline-buttons';
+import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
+import { ACCENT_COLOR } from '../styles/consts';
 import CommentInputBar from './comment-input-bar';
 
 interface FullImageDisplayModalProps {

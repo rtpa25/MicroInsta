@@ -1,12 +1,19 @@
-import { Box, Flex, Heading, Link, Stack, Text } from '@chakra-ui/react';
+import {
+    Box,
+    Button,
+    Flex,
+    Heading,
+    Link,
+    Stack,
+    Text,
+} from '@chakra-ui/react';
 import axios from 'axios';
 import { Form, Formik, FormikErrors } from 'formik';
 import { useRouter } from 'next/router';
 import useSWRMutation from 'swr/mutation';
-import AccentOutlineButton from '../../components/accent-outline-buttons';
 import HeaderLogo from '../../components/header-logo';
 import InputField from '../../components/input-field';
-import { ACCENT_COLOR_LIGHT } from '../../styles/consts';
+import { ACCENT_COLOR, ACCENT_COLOR_LIGHT } from '../../styles/consts';
 import { User } from '../../types/user';
 import { toErrorMap } from '../../utils/to-error-map';
 
@@ -26,7 +33,7 @@ const signinRequest = async (url: string, { arg }: SigninRequestBody) => {
 };
 
 const SignIn = () => {
-    const { trigger } = useSWRMutation('/api/users/signup', signinRequest);
+    const { trigger } = useSWRMutation('/api/users/signin', signinRequest);
     const router = useRouter();
 
     const submitHandler = async (
@@ -98,11 +105,15 @@ const SignIn = () => {
                             <Flex
                                 justifyContent={'space-between'}
                                 alignItems='baseline'>
-                                <AccentOutlineButton
+                                <Button
                                     mt={10}
-                                    buttonText={'Login'}
-                                    isLoading={isSubmitting}
-                                />
+                                    type='submit'
+                                    variant='outline'
+                                    borderColor={ACCENT_COLOR}
+                                    color={ACCENT_COLOR}
+                                    isLoading={isSubmitting}>
+                                    Login
+                                </Button>
                                 <Text>
                                     {"Don't have an account?"}{' '}
                                     <Link

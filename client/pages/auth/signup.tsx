@@ -1,12 +1,19 @@
-import { Box, Flex, Heading, Link, Stack, Text } from '@chakra-ui/react';
+import {
+    Box,
+    Button,
+    Flex,
+    Heading,
+    Link,
+    Stack,
+    Text,
+} from '@chakra-ui/react';
 import axios from 'axios';
 import { Form, Formik, FormikErrors } from 'formik';
 import { useRouter } from 'next/router';
 import useSWRMutation from 'swr/mutation';
-import AccentOutlineButton from '../../components/accent-outline-buttons';
 import HeaderLogo from '../../components/header-logo';
 import InputField from '../../components/input-field';
-import { ACCENT_COLOR_LIGHT } from '../../styles/consts';
+import { ACCENT_COLOR, ACCENT_COLOR_LIGHT } from '../../styles/consts';
 import { User } from '../../types/user';
 import { toErrorMap } from '../../utils/to-error-map';
 
@@ -28,6 +35,7 @@ const signupRequest = async (url: string, { arg }: SignupRequestBody) => {
 
 const SignUp = () => {
     const { trigger } = useSWRMutation('/api/users/signup', signupRequest);
+
     const router = useRouter();
 
     const submitHandler = async (
@@ -109,11 +117,15 @@ const SignUp = () => {
                             <Flex
                                 justifyContent={'space-between'}
                                 alignItems='baseline'>
-                                <AccentOutlineButton
+                                <Button
                                     mt={10}
-                                    buttonText={'Register'}
-                                    isLoading={isSubmitting}
-                                />
+                                    type='submit'
+                                    variant='outline'
+                                    borderColor={ACCENT_COLOR}
+                                    color={ACCENT_COLOR}
+                                    isLoading={isSubmitting}>
+                                    Register
+                                </Button>
                                 <Text>
                                     Have an account?{' '}
                                     <Link

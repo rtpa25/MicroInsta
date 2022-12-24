@@ -4,6 +4,8 @@ import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import AppBar from '../components/app-bar';
 import HomePagePost from '../components/home-page-post';
 import FullImageDisplayModal from '../components/full-post-display-modal';
+import { GetServerSideProps, GetServerSidePropsContext, NextPageContext } from 'next';
+import { requireAuth } from '../components/hoc/require-auth';
 
 const Home = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -39,5 +41,11 @@ const Home = () => {
         </Box>
     );
 };
+
+export const getServerSideProps = requireAuth(async (context:GetServerSidePropsContext) => {
+    return {
+        props: {},
+    };
+});
 
 export default Home;

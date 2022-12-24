@@ -1,26 +1,30 @@
 import {
     Box,
-    Button,
+    Input,
     Modal,
     ModalBody,
     ModalCloseButton,
     ModalContent,
-    ModalFooter,
     ModalHeader,
     ModalOverlay,
-    Stack,
 } from '@chakra-ui/react';
 
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { FC } from 'react';
+import { v4 } from 'uuid';
+import { ACCENT_COLOR } from '../styles/consts';
+import { storage } from '../utils/firebase';
 
 interface UpdateProfilePictureModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onCreationOfImageUrl: (url: string) => void;
 }
 
 const UpdateProfilePictureModal: FC<UpdateProfilePictureModalProps> = ({
     isOpen,
     onClose,
+    onCreationOfImageUrl,
 }) => {
     return (
         <Modal
@@ -34,11 +38,27 @@ const UpdateProfilePictureModal: FC<UpdateProfilePictureModalProps> = ({
                 <ModalHeader>Update Profile Picture</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    <Stack>
-                        <Button>Remove profile picture</Button>
-                        <Button>Add new profile picture</Button>
-                        <Button>Discard</Button>
-                    </Stack>
+                    <Box mt={'10'} w='full'>
+                        <Input
+                            type={'file'}
+                            variant='flushed'
+                            bgColor={'transparent'}
+                            color={ACCENT_COLOR}
+                            onChange={(e) => {
+                                const imageRef = ref(
+                                    storage,
+                                    `images/${e.target.files![0].name + v4()}`
+                                );
+                                uploadBytes(imageRef, e.target.files![0]).then(
+                                    (snapshot) => {
+                                        getDownloadURL(snapshot.ref).then(
+                                            (url) => onCreationOfImageUrl(url)
+                                        );
+                                    }
+                                );
+                            }}
+                        />
+                    </Box>
                 </ModalBody>
             </ModalContent>
         </Modal>
