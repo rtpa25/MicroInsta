@@ -70,9 +70,10 @@ const ProfileSearchModal: FC<ProfileSearchModalProps> = ({
                         key={profile.userId}
                         cursor='pointer'
                         my='4'
-                        onClick={() =>
-                            router.push(`/profile/${profile.userId}`)
-                        }>
+                        onClick={() => {
+                            onClose();
+                            router.push(`/profile/${profile.userId}`);
+                        }}>
                         <Avatar
                             mr={4}
                             name={profile.username}

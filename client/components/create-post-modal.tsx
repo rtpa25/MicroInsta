@@ -18,14 +18,40 @@ import { v4 } from 'uuid';
 import { ACCENT_COLOR, ACCENT_COLOR_LIGHT } from '../styles/consts';
 import { storage } from '../utils/firebase';
 import InputField from './input-field';
+import axios from 'axios';
+import { Post } from '../types/post';
+import useSWRMutation from 'swr/mutation';
 
 interface CreatePostModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
+interface CreatePostRequestBody {
+    arg: {
+        imageUrl: string;
+        caption?: string | undefined;
+    };
+}
+
+const createPostRequest = async (
+    url: string,
+    { arg }: CreatePostRequestBody
+) => {
+    return axios<Post>({
+        method: 'post',
+        url: url,
+        data: arg,
+    });
+};
+
 const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
     const [imageUrl, setImageUrl] = useState<string>('');
+
+    const { trigger, isMutating } = useSWRMutation(
+        '/api/posts',
+        createPostRequest
+    );
 
     return (
         <Modal
@@ -46,7 +72,22 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
                 </ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    <Formik initialValues={{ caption: '' }} onSubmit={() => {}}>
+                    <Formik
+                        initialValues={{ caption: '' }}
+                        onSubmit={async (values, { setErrors }) => {
+                            const { caption } = values;
+                            if (!imageUrl) {
+                                setErrors({
+                                    caption: 'Please upload an image',
+                                });
+                            }
+                            try {
+                                await trigger({ imageUrl, caption });
+                            } catch (error) {
+                                setErrors({ caption: 'Something went wrong' });
+                            }
+                            onClose();
+                        }}>
                         {({ isSubmitting }) => (
                             <Box mx={'5%'} mb={'2%'}>
                                 <Form>
@@ -105,6 +146,7 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
                                         <Text color={'gray.400'}>
                                             Changed your mind?{' '}
                                             <Button
+                                                isLoading={isMutating}
                                                 color={ACCENT_COLOR_LIGHT}
                                                 variant='link'
                                                 onClick={onClose}>

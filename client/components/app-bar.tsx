@@ -20,6 +20,7 @@ import NotificationsModal from './notifications-modal';
 import ProfileSearchModal from './profile-search-modal';
 import useSWRMutation from 'swr/mutation';
 import axios from 'axios';
+import { useGetCurrentUserProfile } from '../hooks/use-get-current-user-profile';
 
 const signoutRequest = async (url: string) => {
     return axios({
@@ -47,7 +48,7 @@ const AppBar = () => {
 
     const router = useRouter();
 
-    const { currentUser } = useGetCurrentUser();
+    const { currentUser, data: ProfileData } = useGetCurrentUserProfile();
 
     const { trigger, isMutating } = useSWRMutation(
         '/api/users/signout',
@@ -107,7 +108,9 @@ const AppBar = () => {
                             size={'lg'}
                             variant={'ghost'}
                             onClick={() => {
-                                router.push(`/profile/${currentUser?.id}`);
+                                if (currentUser) {
+                                    router.push(`/profile/${currentUser.id}`);
+                                }
                             }}
                             aria-label={'profile-self'}
                             icon={<CgProfile />}
@@ -132,6 +135,7 @@ const AppBar = () => {
                 onClose={profileSearchModalOnClose}
             />
             <NotificationsModal
+                friendRequests={ProfileData?.data.friendRequests}
                 isOpen={notificationModalIsOpen}
                 onClose={notificationModalOnClose}
             />

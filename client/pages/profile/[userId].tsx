@@ -19,15 +19,42 @@ import { useGetCurrentUser } from '../../hooks/use-get-current-user';
 import { ACCENT_COLOR } from '../../styles/consts';
 import { Profile } from '../../types/profile';
 import { buildClient } from '../../utils/build-client';
+import useSWRMutations from 'swr/mutation';
+import axios from 'axios';
+import useSWR from 'swr';
+import { Post } from '../../types/post';
 
 interface UserProfileServerSideProps {
     profile: Profile;
 }
 
+interface AddFriendRequestBody {
+    arg: {
+        receiverId: string;
+    };
+}
+
+const addFriendRequest = async (url: string, { arg }: AddFriendRequestBody) => {
+    return axios<Profile>({
+        method: 'put',
+        url,
+        data: arg,
+    });
+};
+
+const fetchPostsByUserId = async (url: string) => {
+    return axios<Post[]>({
+        method: 'get',
+        url,
+    });
+};
+
 const UserProfile: NextPage<UserProfileServerSideProps> = ({ profile }) => {
     const router = useRouter();
 
     const [isSelfProfile, setIsSelfProfile] = useState<boolean>(false);
+    const [isRequested, setIsRequested] = useState<boolean>(false);
+    const [isFriend, setIsFriend] = useState<boolean>(false);
 
     const { currentUser } = useGetCurrentUser();
 
@@ -35,6 +62,19 @@ const UserProfile: NextPage<UserProfileServerSideProps> = ({ profile }) => {
         if (currentUser?.id === profile.userId) {
             setIsSelfProfile(true);
         }
+
+        profile.friendRequests.map((profile) => {
+            if (profile.userId === currentUser?.id) {
+                setIsRequested(true);
+            }
+        });
+
+        profile.friends.map((profile) => {
+            if (profile.userId === currentUser?.id) {
+                setIsFriend(true);
+            }
+        });
+        console.log('hello');
     }, [currentUser, profile]);
 
     const selfProfileState = (
@@ -47,13 +87,39 @@ const UserProfile: NextPage<UserProfileServerSideProps> = ({ profile }) => {
         </Button>
     );
 
+    const { trigger, isMutating } = useSWRMutations(
+        `/api/profile/add-friend/${currentUser?.id}`,
+        addFriendRequest
+    );
+
+    const addFriendHandler = async () => {
+        try {
+            const res = await trigger({ receiverId: profile.userId });
+            res?.data.friendRequests.map((profile) => {
+                if (profile.userId === currentUser?.id) {
+                    setIsRequested(true);
+                }
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const otherProfileState = (
         <ButtonGroup gap={4}>
             <Button
                 variant='outline'
                 borderColor={ACCENT_COLOR}
+                onClick={
+                    !isFriend && !isRequested ? addFriendHandler : () => {}
+                }
+                isLoading={isMutating}
                 color={ACCENT_COLOR}>
-                Add Friend
+                {isRequested
+                    ? 'Requested'
+                    : isFriend
+                    ? 'Friends'
+                    : 'Add Friend'}
             </Button>
             <Button
                 variant='outline'
@@ -71,6 +137,11 @@ const UserProfile: NextPage<UserProfileServerSideProps> = ({ profile }) => {
             return otherProfileState;
         }
     };
+
+    const { data, isLoading, error } = useSWR(
+        `/api/query/${profile.userId}`,
+        fetchPostsByUserId
+    );
 
     if (!profile) {
         return <div>Profile not found</div>;
@@ -128,11 +199,14 @@ const UserProfile: NextPage<UserProfileServerSideProps> = ({ profile }) => {
                     my={['0', '3', '6', '7']}
                     spacing={'16'}
                     templateColumns='repeat(auto-fill, minmax(200px, 1fr))'>
-                    <IndividualProfilePostPicture />
-
-                    <IndividualProfilePostPicture />
-                    <IndividualProfilePostPicture />
-                    <IndividualProfilePostPicture />
+                    {data?.data.map((post) => {
+                        return (
+                            <IndividualProfilePostPicture
+                                key={post.id}
+                                post={post}
+                            />
+                        );
+                    })}
                 </SimpleGrid>
             </Box>
         </>

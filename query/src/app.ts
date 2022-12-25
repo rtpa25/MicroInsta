@@ -5,6 +5,7 @@ import cookieSession from 'cookie-session';
 import express from 'express';
 import { indexQueryRouter } from './routes/index-fetch';
 import { detailedQueryRouter } from './routes/detailed-fetch';
+import { fetchPostsByUserIdRouter } from './routes/fetch-by-user-id';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(
 app.use(currentUser);
 app.use(indexQueryRouter);
 app.use(detailedQueryRouter);
+app.use(fetchPostsByUserIdRouter);
 
 app.all('*', async (_req, _res, _next) => {
     throw new NotFoundError();

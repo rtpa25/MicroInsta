@@ -4,6 +4,6 @@ export interface Profile {
     bio?: string | undefined;
     fullName?: string | undefined;
     avatarUrl?: string | undefined;
-    friends: string[];
-    friendRequests: string[];
+    friends: Profile[];
+    friendRequests: Profile[];
 }

@@ -61,6 +61,9 @@ router.put(
 
         receiverProfile.set({
             friends: [...receiverProfile.friends, senderProfile._id],
+            friendRequests: receiverProfile.friendRequests.filter(
+                (fr) => !fr.equals(senderProfile._id)
+            ),
         });
 
         await senderProfile.save();

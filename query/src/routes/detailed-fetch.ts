@@ -7,7 +7,7 @@ import { Comment } from '../model/comment';
 const router = Router();
 
 router.get(
-    '/api/query/:postId',
+    '/api/query/detail/:postId',
     requireAuth,
     [param('postId').isMongoId().withMessage('PostId must be a valid MongoId')],
     validateRequest,

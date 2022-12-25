@@ -1,7 +1,15 @@
 import { Box, Image, useDisclosure } from '@chakra-ui/react';
 import FullImageDisplayModal from './full-post-display-modal';
+import { Post } from '../types/post';
+import { FC } from 'react';
 
-const IndividualProfilePostPicture = () => {
+interface IndividualProfilePostPictureProps {
+    post: Post;
+}
+
+const IndividualProfilePostPicture: FC<IndividualProfilePostPictureProps> = ({
+    post,
+}) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     return (
@@ -9,8 +17,8 @@ const IndividualProfilePostPicture = () => {
             <Box>
                 <Image
                     objectFit='cover'
-                    src='https://bit.ly/dan-abramov'
-                    alt='Dan Abramov'
+                    src={post.imageUrl}
+                    alt={post.caption}
                     onClick={onOpen}
                 />
             </Box>

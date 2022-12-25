@@ -17,7 +17,9 @@ router.get(
     async (req: Request<{ userId: string }>, res: Response) => {
         const { userId } = req.params;
 
-        const profile = await Profile.findOne({ userId });
+        const profile = await Profile.findOne({ userId })
+            .populate('friends')
+            .populate('friendRequests');
 
         if (!profile) {
             throw new BadRequestError('Profile not found');

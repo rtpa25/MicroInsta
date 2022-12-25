@@ -17,7 +17,6 @@ const HeaderLogo: FC<HeaderLogoProps> = ({ isAppBarHeader }) => {
             color={ACCENT_COLOR}
             onClick={() => {
                 router.push('/');
-                router.reload();
             }}
             display={isAppBarHeader ? ['none', 'block', 'block'] : 'block'}
             fontSize={['3xl', '4xl']}>
