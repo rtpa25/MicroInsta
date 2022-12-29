@@ -1,8 +1,10 @@
 import {
     Avatar,
     Box,
+    ButtonGroup,
     Divider,
     Flex,
+    IconButton,
     Image,
     ListItem,
     Modal,
@@ -13,7 +15,7 @@ import {
     UnorderedList,
 } from '@chakra-ui/react';
 import axios from 'axios';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { useGetCurrentUserProfile } from '../hooks/use-get-current-user-profile';
@@ -21,6 +23,7 @@ import { useAppSelector } from '../hooks/use-redux';
 import { ACCENT_COLOR } from '../styles/consts';
 import { DetailedPostType } from '../types/post';
 import CommentInputBar from './comment-input-bar';
+import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 
 interface FullImageDisplayModalProps {
     onClose: () => void;
@@ -55,6 +58,13 @@ const postCommentRequest = async (
     });
 };
 
+const postDeleteRequest = async (url: string) => {
+    return axios({
+        method: 'delete',
+        url: url,
+    });
+};
+
 const FullImageDisplayModal: FC<FullImageDisplayModalProps> = ({
     isOpen,
     onClose,
@@ -63,10 +73,21 @@ const FullImageDisplayModal: FC<FullImageDisplayModalProps> = ({
 }) => {
     const { data } = useSWR(`/api/query/detail/${postId}`, fetchPostDetails);
     const { data: currentUserProfileData } = useGetCurrentUserProfile();
-    const { trigger, isMutating } = useSWRMutation(
-        `/api/comments`,
-        postCommentRequest
-    );
+    const {
+        trigger: createCommentTrigger,
+        isMutating: createCommentIsMutating,
+    } = useSWRMutation(`/api/comments`, postCommentRequest);
+
+    const { trigger: deletePostTrigger, isMutating: deletePostIsMutating } =
+        useSWRMutation(`/api/posts/${postId}`, postDeleteRequest);
+
+    const [isSelf, setIsSelf] = useState(false);
+
+    useEffect(() => {
+        if (data?.data.post.userId === currentUserProfileData?.data.userId) {
+            setIsSelf(true);
+        }
+    }, [currentUserProfileData?.data.userId, data?.data.post.userId]);
 
     const { mutate } = useSWRConfig();
 
@@ -78,7 +99,7 @@ const FullImageDisplayModal: FC<FullImageDisplayModalProps> = ({
         const username = currentUserProfileData?.data.username;
         if (!username) return;
         try {
-            await trigger({
+            await createCommentTrigger({
                 content: commentText,
                 postId: postId,
                 username: username,
@@ -86,6 +107,17 @@ const FullImageDisplayModal: FC<FullImageDisplayModalProps> = ({
             setCommentText('');
             swr?.mutate();
             mutate(`/api/query/detail/${postId}`);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const deletePostHandler = async () => {
+        try {
+            await deletePostTrigger();
+            onClose();
+            mutate(`/api/query/${currentUserProfileData?.data.userId}`);
+            swr?.mutate();
         } catch (error) {
             console.error(error);
         }
@@ -120,14 +152,32 @@ const FullImageDisplayModal: FC<FullImageDisplayModalProps> = ({
                             justifyContent='space-between'>
                             <Box mb={4}>
                                 <Box m={4}>
-                                    <Flex>
-                                        <Avatar
-                                            size={'sm'}
-                                            name={creatorName}
-                                            src={creatorName}
-                                            mr={4}
-                                        />
-                                        <Text>{creatorName}</Text>
+                                    <Flex justifyContent={'space-between'}>
+                                        <Flex>
+                                            <Avatar
+                                                size={'sm'}
+                                                name={creatorName}
+                                                src={creatorName}
+                                                mr={4}
+                                            />
+                                            <Text>{creatorName}</Text>
+                                        </Flex>
+                                        {isSelf && (
+                                            <ButtonGroup>
+                                                <IconButton
+                                                    aria-label={'edit'}
+                                                    icon={<AiOutlineEdit />}
+                                                />
+                                                <IconButton
+                                                    aria-label={'edit'}
+                                                    onClick={deletePostHandler}
+                                                    isLoading={
+                                                        deletePostIsMutating
+                                                    }
+                                                    icon={<AiOutlineDelete />}
+                                                />
+                                            </ButtonGroup>
+                                        )}
                                     </Flex>
                                 </Box>
                                 <Divider />
@@ -175,7 +225,7 @@ const FullImageDisplayModal: FC<FullImageDisplayModalProps> = ({
                             </UnorderedList>
                             <CommentInputBar
                                 setCommentText={setCommentText}
-                                isLoading={isMutating}
+                                isLoading={createCommentIsMutating}
                                 postHandler={postHandler}
                                 commentText={commentText}
                             />

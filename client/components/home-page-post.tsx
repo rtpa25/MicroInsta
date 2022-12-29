@@ -17,15 +17,14 @@ import {
     BsFillSuitHeartFill,
     BsSuitHeart,
 } from 'react-icons/bs';
-import { SWRResponse } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { useGetCurrentUser } from '../hooks/use-get-current-user';
+import { useAppSelector } from '../hooks/use-redux';
 import { ACCENT_COLOR_LIGHT } from '../styles/consts';
 import { Like } from '../types/like';
 import { Post } from '../types/post';
 import { convertTimeToHoursAgo } from '../utils/convert-time-to-hours-ago';
 import FullImageDisplayModal from './full-post-display-modal';
-import { useAppSelector } from '../hooks/use-redux';
 
 interface HomePagePostProps {
     post: Post;
