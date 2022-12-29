@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Spinner } from '@chakra-ui/react';
 import { GetServerSidePropsContext } from 'next';
 import { useState } from 'react';
 import InfiniteScroll from 'react-swr-infinite-scroll';
@@ -10,9 +10,10 @@ import HomePagePost from '../components/home-page-post';
 import { Post } from '../types/post';
 import { useAppDispatch } from '../hooks/use-redux';
 import { setSWR } from '../store/slices/index-paginated-swr-slice';
+import { ACCENT_COLOR } from '../styles/consts';
 
 const Home = () => {
-    const [limit, setLimit] = useState(10);
+    const [limit] = useState(10);
 
     const dispatch = useAppDispatch();
 
@@ -25,12 +26,18 @@ const Home = () => {
 
     dispatch(setSWR(swr));
 
+    const loadingState = (
+        <Box color={ACCENT_COLOR} textAlign='center'>
+            <Spinner size={'xl'} />
+        </Box>
+    );
+
     return (
         <Box h={'90vh'} mb={0}>
             <AppBar />
             <InfiniteScroll
                 swr={swr}
-                loadingIndicator='Loading...'
+                loadingIndicator={loadingState}
                 isReachingEnd={(swr) => {
                     return (
                         swr.data?.[0]?.length === 0 ||

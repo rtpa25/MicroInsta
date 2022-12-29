@@ -100,34 +100,42 @@ const FullImageDisplayModal: FC<FullImageDisplayModalProps> = ({
             scrollBehavior='inside'
             motionPreset='slideInBottom'>
             <ModalOverlay />
-            <ModalContent bgColor={'black'} height='fit-content'>
-                <ModalBody overflow={'hidden'}>
-                    <Flex justifyContent={'stretch'} alignItems='stretch'>
-                        <Box w={'50%'} mr={5} height='fit-content'>
+            <ModalContent bgColor={'black'} h='full'>
+                <ModalBody overflow={'hidden'} h='full'>
+                    <Flex h='full'>
+                        <Box w={'50%'} mr={5} h='full'>
                             <Image
                                 rounded={'md'}
+                                w={'full'}
+                                h={'full'}
                                 objectFit='cover'
                                 src={data?.data.post.imageUrl}
                                 alt={data?.data.post.caption}
                             />
                         </Box>
-                        <Box w={'50%'} height='auto'>
-                            <Box m={4}>
-                                <Flex>
-                                    <Avatar
-                                        size={'sm'}
-                                        name={creatorName}
-                                        src={creatorName}
-                                        mr={4}
-                                    />
-                                    <Text>{creatorName}</Text>
-                                </Flex>
+                        <Flex
+                            w={'50%'}
+                            height='auto'
+                            flexDir={'column'}
+                            justifyContent='space-between'>
+                            <Box mb={4}>
+                                <Box m={4}>
+                                    <Flex>
+                                        <Avatar
+                                            size={'sm'}
+                                            name={creatorName}
+                                            src={creatorName}
+                                            mr={4}
+                                        />
+                                        <Text>{creatorName}</Text>
+                                    </Flex>
+                                </Box>
+                                <Divider />
                             </Box>
-                            <Divider />
                             <UnorderedList
                                 overflow={'scroll'}
                                 w='full'
-                                height={'57%'}>
+                                h={'full'}>
                                 {data?.data.commentsAssociatedWithPost.map(
                                     (comment) => {
                                         return (
@@ -171,7 +179,7 @@ const FullImageDisplayModal: FC<FullImageDisplayModalProps> = ({
                                 postHandler={postHandler}
                                 commentText={commentText}
                             />
-                        </Box>
+                        </Flex>
                     </Flex>
                 </ModalBody>
             </ModalContent>

@@ -94,9 +94,9 @@ const HomePagePost: FC<HomePagePostProps> = ({ post }) => {
     return (
         <Box
             maxW={['100%', '80%', '60%', '40%']}
-            height={'85%'}
             mx='auto'
             mt={10}
+            pb={5}
             bgColor='black'
             rounded={'md'}
             pt={3}>
