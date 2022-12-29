@@ -12,102 +12,165 @@ import {
     Text,
     UnorderedList,
 } from '@chakra-ui/react';
-import { FC } from 'react';
-import Autosizer from 'react-virtualized-auto-sizer';
-import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
+import axios from 'axios';
+import { FC, useState } from 'react';
+import useSWR, { useSWRConfig } from 'swr';
+import useSWRMutation from 'swr/mutation';
+import { useGetCurrentUserProfile } from '../hooks/use-get-current-user-profile';
+import { useAppSelector } from '../hooks/use-redux';
 import { ACCENT_COLOR } from '../styles/consts';
+import { DetailedPostType } from '../types/post';
 import CommentInputBar from './comment-input-bar';
 
 interface FullImageDisplayModalProps {
     onClose: () => void;
     isOpen: boolean;
+    postId: string;
+    creatorName: string;
 }
 
-function renderRow(props: ListChildComponentProps) {
-    const { index, style } = props;
+const fetchPostDetails = async (url: string) => {
+    return axios<DetailedPostType>({
+        method: 'get',
+        url: url,
+    });
+};
 
-    return (
-        <ListItem key={index} style={style}>
-            <Box>
-                <Flex
-                    w={'full'}
-                    justifyContent='flex-start'
-                    alignItems={'center'}>
-                    <Avatar size={'sm'} mr={5} />
-                    <Flex justifyContent={'space-between'}>
-                        <Text color={ACCENT_COLOR} mr={2}>
-                            Ronit Panda:{' '}
-                        </Text>{' '}
-                        <Text
-                            letterSpacing={'wide'}
-                            fontWeight='hairline'
-                            maxW={'75%'}
-                            mx='auto'>
-                            Lorem ipsum dolor sit, amet
-                        </Text>
-                    </Flex>
-                </Flex>
-            </Box>
-        </ListItem>
-    );
+interface PostCommentRequestBody {
+    arg: {
+        postId: string;
+        content: string;
+        username: string;
+    };
 }
+
+const postCommentRequest = async (
+    url: string,
+    { arg }: PostCommentRequestBody
+) => {
+    return axios<Comment>({
+        method: 'post',
+        url: url,
+        data: arg,
+    });
+};
 
 const FullImageDisplayModal: FC<FullImageDisplayModalProps> = ({
     isOpen,
     onClose,
+    postId,
+    creatorName,
 }) => {
+    const { data } = useSWR(`/api/query/detail/${postId}`, fetchPostDetails);
+    const { data: currentUserProfileData } = useGetCurrentUserProfile();
+    const { trigger, isMutating } = useSWRMutation(
+        `/api/comments`,
+        postCommentRequest
+    );
+
+    const { mutate } = useSWRConfig();
+
+    const [commentText, setCommentText] = useState<string>('');
+
+    const swr = useAppSelector((state) => state.indexPaginatedSWR.swr);
+
+    const postHandler = async () => {
+        const username = currentUserProfileData?.data.username;
+        if (!username) return;
+        try {
+            await trigger({
+                content: commentText,
+                postId: postId,
+                username: username,
+            });
+            setCommentText('');
+            swr?.mutate();
+            mutate(`/api/query/detail/${postId}`);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     return (
         <Modal
             isCentered
-            size={'5xl'}
+            size={'4xl'}
             onClose={onClose}
             isOpen={isOpen}
+            scrollBehavior='inside'
             motionPreset='slideInBottom'>
             <ModalOverlay />
-            <ModalContent bgColor={'black'}>
-                <ModalBody>
-                    <Flex>
-                        <Box flex={1} boxSize='-moz-fit-content' mr={5}>
+            <ModalContent bgColor={'black'} height='fit-content'>
+                <ModalBody overflow={'hidden'}>
+                    <Flex justifyContent={'stretch'} alignItems='stretch'>
+                        <Box w={'50%'} mr={5} height='fit-content'>
                             <Image
                                 rounded={'md'}
                                 objectFit='cover'
-                                src='https://images.unsplash.com/photo-1670843632632-b391a249734a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=688&q=80'
-                                alt='Dan Abramov'
+                                src={data?.data.post.imageUrl}
+                                alt={data?.data.post.caption}
                             />
                         </Box>
-                        <Box flex={1}>
+                        <Box w={'50%'} height='auto'>
                             <Box m={4}>
                                 <Flex>
                                     <Avatar
                                         size={'sm'}
-                                        name='Dan Abrahmov'
-                                        src='https://bit.ly/dan-abramov'
+                                        name={creatorName}
+                                        src={creatorName}
                                         mr={4}
                                     />
-                                    <Text>Dan Abrahmov</Text>
+                                    <Text>{creatorName}</Text>
                                 </Flex>
                             </Box>
                             <Divider />
                             <UnorderedList
                                 overflow={'scroll'}
-                                zIndex={10}
                                 w='full'
-                                h='85%'
-                                scrollBehavior='auto'>
-                                <Autosizer>
-                                    {({ height, width }) => (
-                                        <List
-                                            height={height}
-                                            width={width}
-                                            itemSize={50}
-                                            itemCount={23}
-                                            overscanCount={5}>
-                                            {renderRow}
-                                        </List>
-                                    )}
-                                </Autosizer>
+                                height={'57%'}>
+                                {data?.data.commentsAssociatedWithPost.map(
+                                    (comment) => {
+                                        return (
+                                            <ListItem mb={4} key={comment.id}>
+                                                <Flex
+                                                    w={'full'}
+                                                    justifyContent='flex-start'
+                                                    alignItems={'center'}>
+                                                    <Avatar
+                                                        size={'sm'}
+                                                        mr={5}
+                                                    />
+                                                    <Flex
+                                                        justifyContent={
+                                                            'space-between'
+                                                        }>
+                                                        <Text
+                                                            color={ACCENT_COLOR}
+                                                            mr={2}>
+                                                            {comment.username}:{' '}
+                                                        </Text>{' '}
+                                                        <Text
+                                                            letterSpacing={
+                                                                'wide'
+                                                            }
+                                                            fontWeight='hairline'
+                                                            maxW={'75%'}
+                                                            mx='auto'>
+                                                            {comment.content}
+                                                        </Text>
+                                                    </Flex>
+                                                </Flex>
+                                            </ListItem>
+                                        );
+                                    }
+                                )}
                             </UnorderedList>
-                            <CommentInputBar />
+                            <CommentInputBar
+                                setCommentText={setCommentText}
+                                isLoading={isMutating}
+                                postHandler={postHandler}
+                                commentText={commentText}
+                            />
                         </Box>
                     </Flex>
                 </ModalBody>

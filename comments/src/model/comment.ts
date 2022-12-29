@@ -5,12 +5,14 @@ interface CommentAttrs {
     content: string;
     postId: string;
     userId: string;
+    username: string;
 }
 
 interface CommentDoc extends Document {
     content: string;
     postId: string;
     userId: string;
+    username: string;
     version: number;
     createdAt: string;
     updatedAt: string;
@@ -31,6 +33,10 @@ const commentSchema = new Schema(
             required: true,
         },
         userId: {
+            type: String,
+            required: true,
+        },
+        username: {
             type: String,
             required: true,
         },

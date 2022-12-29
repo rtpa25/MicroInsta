@@ -1,51 +1,58 @@
-import { Box, useDisclosure } from '@chakra-ui/react';
-import AutoSizer from 'react-virtualized-auto-sizer';
-import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
+import { Box } from '@chakra-ui/react';
+import { GetServerSidePropsContext } from 'next';
+import { useState } from 'react';
+import InfiniteScroll from 'react-swr-infinite-scroll';
+import useSWRInfinite from 'swr/infinite';
+
 import AppBar from '../components/app-bar';
-import HomePagePost from '../components/home-page-post';
-import FullImageDisplayModal from '../components/full-post-display-modal';
-import { GetServerSideProps, GetServerSidePropsContext, NextPageContext } from 'next';
 import { requireAuth } from '../components/hoc/require-auth';
+import HomePagePost from '../components/home-page-post';
+import { Post } from '../types/post';
+import { useAppDispatch } from '../hooks/use-redux';
+import { setSWR } from '../store/slices/index-paginated-swr-slice';
 
 const Home = () => {
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [limit, setLimit] = useState(10);
 
-    function renderRow(props: ListChildComponentProps) {
-        const { index, style } = props;
+    const dispatch = useAppDispatch();
 
-        return (
-            <Box key={index} style={style}>
-                <HomePagePost onOpen={onOpen} />
-            </Box>
-        );
-    }
+    const swr = useSWRInfinite(
+        (index, prev) => `/api/query?limit=${limit}&offset=${index}`,
+        {
+            fetcher: async (key) => fetch(key).then((res) => res.json()),
+        }
+    );
+
+    dispatch(setSWR(swr));
 
     return (
         <Box h={'90vh'} mb={0}>
             <AppBar />
-            <AutoSizer>
-                {({ height, width }) => {
+            <InfiniteScroll
+                swr={swr}
+                loadingIndicator='Loading...'
+                isReachingEnd={(swr) => {
                     return (
-                        <List
-                            height={height}
-                            width={width}
-                            itemSize={750}
-                            itemCount={10}
-                            overscanCount={5}>
-                            {renderRow}
-                        </List>
+                        swr.data?.[0]?.length === 0 ||
+                        swr.data?.[swr.data?.length - 1]?.length < limit
                     );
-                }}
-            </AutoSizer>
-            <FullImageDisplayModal onClose={onClose} isOpen={isOpen} />
+                }}>
+                {(response: any) =>
+                    response?.map((post: Post) => (
+                        <HomePagePost key={post.id} post={post} />
+                    ))
+                }
+            </InfiniteScroll>
         </Box>
     );
 };
 
-export const getServerSideProps = requireAuth(async (context:GetServerSidePropsContext) => {
-    return {
-        props: {},
-    };
-});
+export const getServerSideProps = requireAuth(
+    async (context: GetServerSidePropsContext) => {
+        return {
+            props: {},
+        };
+    }
+);
 
 export default Home;

@@ -1,4 +1,5 @@
 import {
+    Box,
     Modal,
     ModalBody,
     ModalCloseButton,
@@ -9,18 +10,18 @@ import {
 import { FC } from 'react';
 import { ACCENT_COLOR } from '../styles/consts';
 import { Profile } from '../types/profile';
-import FriendRequestModalBodyCard from './friend-request-modal-body-card';
+import ShowAllFriendsModalBodyCard from './show-all-friends-modal-body-card';
 
-interface NotificationsModalProps {
+interface ShowAllFriendsModalProps {
     isOpen: boolean;
     onClose: () => void;
-    friendRequests: Profile[] | undefined;
+    friends: Profile[];
 }
 
-const NotificationsModal: FC<NotificationsModalProps> = ({
+const ShowAllFriendsModal: FC<ShowAllFriendsModalProps> = ({
     isOpen,
     onClose,
-    friendRequests,
+    friends,
 }) => {
     return (
         <Modal
@@ -35,23 +36,27 @@ const NotificationsModal: FC<NotificationsModalProps> = ({
                     fontWeight={'thin'}
                     fontFamily={'serif'}
                     color={ACCENT_COLOR}>
-                    Friend Requests
+                    Friends List
                 </ModalHeader>
                 <ModalCloseButton />
                 <ModalBody overflowY={'scroll'}>
-                    {friendRequests?.map((friendRequest) => {
-                        return (
-                            <FriendRequestModalBodyCard
-                                onClose={onClose}
-                                friendRequest={friendRequest}
-                                key={friendRequest.userId}
-                            />
-                        );
-                    })}
+                    {friends.length > 0 ? (
+                        friends.map((friend) => {
+                            return (
+                                <ShowAllFriendsModalBodyCard
+                                    key={friend.userId}
+                                    friend={friend}
+                                    onClose={onClose}
+                                />
+                            );
+                        })
+                    ) : (
+                        <Box>No friends for now</Box>
+                    )}
                 </ModalBody>
             </ModalContent>
         </Modal>
     );
 };
 
-export default NotificationsModal;
+export default ShowAllFriendsModal;

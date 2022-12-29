@@ -11,13 +11,14 @@ export class CommentCreatedEventListener extends Listener<CommentCreatedEvent> {
         data: CommentCreatedEvent['data'],
         msg: Message
     ): Promise<void> {
-        const { content, id, postId, userId } = data;
+        const { content, id, postId, userId, username } = data;
 
         const comment = Comment.build({
             content,
             id,
             postId,
             userId,
+            username,
         });
 
         await comment.save();

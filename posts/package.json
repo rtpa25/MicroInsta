@@ -10,7 +10,7 @@
     },
     "description": "posts microservice is a part of the micro_insta project. It is a microservice that handles all the posts related operations.",
     "dependencies": {
-        "@micro_insta/common": "^1.0.6",
+        "@micro_insta/common": "^1.0.9",
         "@swc/core": "^1.3.23",
         "@swc/wasm": "^1.3.23",
         "@types/cookie-session": "^2.0.44",

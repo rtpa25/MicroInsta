@@ -8,6 +8,7 @@ import {
     Heading,
     SimpleGrid,
     Text,
+    useDisclosure,
 } from '@chakra-ui/react';
 import { GetServerSidePropsContext, NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -23,6 +24,7 @@ import useSWRMutations from 'swr/mutation';
 import axios from 'axios';
 import useSWR from 'swr';
 import { Post } from '../../types/post';
+import ShowAllFriendsModal from '../../components/show-all-friends-modal';
 
 interface UserProfileServerSideProps {
     profile: Profile;
@@ -74,7 +76,6 @@ const UserProfile: NextPage<UserProfileServerSideProps> = ({ profile }) => {
                 setIsFriend(true);
             }
         });
-        console.log('hello');
     }, [currentUser, profile]);
 
     const selfProfileState = (
@@ -143,6 +144,8 @@ const UserProfile: NextPage<UserProfileServerSideProps> = ({ profile }) => {
         fetchPostsByUserId
     );
 
+    const { isOpen, onClose, onOpen } = useDisclosure();
+
     if (!profile) {
         return <div>Profile not found</div>;
     }
@@ -177,9 +180,19 @@ const UserProfile: NextPage<UserProfileServerSideProps> = ({ profile }) => {
                                     fontSize={['xl', '2xl', '3xl', '4xl']}>
                                     {profile.username}
                                 </Heading>
-                                <Text color={'gray.400'} fontWeight='hairline'>
-                                    {`${profile.username} has ${profile.friends.length} friends`}
-                                </Text>
+                                <Button
+                                    onClick={onOpen}
+                                    variant={'link'}
+                                    color={'gray.400'}
+                                    fontWeight='hairline'>
+                                    {`${profile.username} has ${
+                                        profile.friends.length
+                                    } ${
+                                        profile.friends.length === 1
+                                            ? 'friend'
+                                            : 'friends'
+                                    }`}
+                                </Button>
                             </Box>
                             {renderProfileActionButtons()}
                         </Flex>
@@ -202,12 +215,18 @@ const UserProfile: NextPage<UserProfileServerSideProps> = ({ profile }) => {
                     {data?.data.map((post) => {
                         return (
                             <IndividualProfilePostPicture
+                                profile={profile}
                                 key={post.id}
                                 post={post}
                             />
                         );
                     })}
                 </SimpleGrid>
+                <ShowAllFriendsModal
+                    isOpen={isOpen}
+                    onClose={onClose}
+                    friends={profile.friends}
+                />
             </Box>
         </>
     );

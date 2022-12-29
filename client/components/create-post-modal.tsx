@@ -21,6 +21,7 @@ import InputField from './input-field';
 import axios from 'axios';
 import { Post } from '../types/post';
 import useSWRMutation from 'swr/mutation';
+import { useAppSelector } from '../hooks/use-redux';
 
 interface CreatePostModalProps {
     isOpen: boolean;
@@ -53,6 +54,8 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
         createPostRequest
     );
 
+    const swr = useAppSelector((state) => state.indexPaginatedSWR.swr);
+
     return (
         <Modal
             isCentered
@@ -83,6 +86,7 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
                             }
                             try {
                                 await trigger({ imageUrl, caption });
+                                swr?.mutate();
                             } catch (error) {
                                 setErrors({ caption: 'Something went wrong' });
                             }
@@ -97,7 +101,6 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
                                             placeholder={'caption'}
                                             label={'Caption'}
                                             type={'text'}
-                                            color={ACCENT_COLOR}
                                             textArea={true}
                                             isPassword={false}
                                             showFormLabel={true}

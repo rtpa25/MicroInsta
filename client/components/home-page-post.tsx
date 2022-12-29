@@ -1,23 +1,96 @@
 import {
-    Box,
-    Flex,
-    Stack,
     Avatar,
-    Text,
-    Image,
+    Box,
+    Button,
+    Flex,
     IconButton,
-    Link,
+    Image,
+    Stack,
+    Text,
+    useDisclosure,
 } from '@chakra-ui/react';
-import React, { FC } from 'react';
+import axios from 'axios';
+import { FC, useEffect, useState } from 'react';
+import {
+    BsBookmarkCheck,
+    BsChatRight,
+    BsFillSuitHeartFill,
+    BsSuitHeart,
+} from 'react-icons/bs';
+import { SWRResponse } from 'swr';
+import useSWRMutation from 'swr/mutation';
+import { useGetCurrentUser } from '../hooks/use-get-current-user';
 import { ACCENT_COLOR_LIGHT } from '../styles/consts';
-import CommentInputBar from './comment-input-bar';
-import { BsBookmarkCheck, BsSuitHeart, BsChatRight } from 'react-icons/bs';
+import { Like } from '../types/like';
+import { Post } from '../types/post';
+import { convertTimeToHoursAgo } from '../utils/convert-time-to-hours-ago';
+import FullImageDisplayModal from './full-post-display-modal';
+import { useAppSelector } from '../hooks/use-redux';
 
 interface HomePagePostProps {
-    onOpen: () => void;
+    post: Post;
 }
 
-const HomePagePost: FC<HomePagePostProps> = ({ onOpen }) => {
+interface LikeRequestBody {
+    arg: {
+        postId: string;
+    };
+}
+
+const createLikeRequest = async (url: string, { arg }: LikeRequestBody) => {
+    return axios<Like>({
+        method: 'post',
+        url: url,
+        data: arg,
+    });
+};
+
+const deleteLikeRequest = async (url: string, { arg }: LikeRequestBody) => {
+    return axios<Like>({
+        method: 'delete',
+        url: url,
+        data: arg,
+    });
+};
+
+const HomePagePost: FC<HomePagePostProps> = ({ post }) => {
+    const { onClose, onOpen, isOpen } = useDisclosure();
+
+    const [isLiked, setIsLiked] = useState<boolean>(false);
+
+    const { trigger: createLikeTrigger, isMutating: createLikeIsMutating } =
+        useSWRMutation('/api/likes', createLikeRequest);
+
+    const { trigger: deleteLikeTrigger, isMutating: deleteLikeIsMutating } =
+        useSWRMutation('/api/likes', deleteLikeRequest);
+
+    const { currentUser } = useGetCurrentUser();
+
+    const swr = useAppSelector((state) => state.indexPaginatedSWR.swr);
+
+    useEffect(() => {
+        post.likes.map((uid: string) => {
+            if (uid === currentUser?.id) {
+                setIsLiked(true);
+            }
+        });
+    }, [currentUser?.id, post.likes]);
+
+    const likesHandler = async () => {
+        try {
+            if (isLiked) {
+                await deleteLikeTrigger({ postId: post.id });
+                setIsLiked(false);
+            } else {
+                await createLikeTrigger({ postId: post.id });
+                setIsLiked(true);
+            }
+            swr?.mutate();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     return (
         <Box
             maxW={['100%', '80%', '60%', '40%']}
@@ -30,18 +103,19 @@ const HomePagePost: FC<HomePagePostProps> = ({ onOpen }) => {
             <Stack h={'full'} justifyContent={'space-between'}>
                 <Box w={'full'} h='full'>
                     <Flex alignItems={'center'} mb={2.5}>
-                        <Avatar size={'sm'} mx={2.5} />
+                        <Avatar size={'sm'} mx={2.5} src={post.username} />
                         <Text
                             fontWeight={'hairline'}
                             color={ACCENT_COLOR_LIGHT}>
-                            Ronit Panda
+                            {post.username}
                         </Text>
                     </Flex>
                     <Box w='full' mr={5}>
                         <Image
+                            w={'full'}
                             objectFit='cover'
-                            src='https://firebasestorage.googleapis.com/v0/b/ticketing-d58e2.appspot.com/o/images%2Fselena-gomez-once-left-us-drooling-while-she-posed-nked-with-a-towel-covering-her-assets-01.jpg1c493d09-6b06-4591-a7a4-971c6b9e393b?alt=media&token=bbf25666-5365-47ca-923a-cc9a7e93f4c3'
-                            alt='Dan Abramov'
+                            src={post.imageUrl}
+                            alt={post.username}
                         />
                     </Box>
                     <Flex justifyContent={'space-between'} mx='2.5' my={0}>
@@ -49,8 +123,19 @@ const HomePagePost: FC<HomePagePostProps> = ({ onOpen }) => {
                             <IconButton
                                 variant={'ghost'}
                                 size={'lg'}
+                                color='red'
                                 aria-label='like'
-                                icon={<BsSuitHeart />}
+                                isLoading={
+                                    createLikeIsMutating || deleteLikeIsMutating
+                                }
+                                onClick={likesHandler}
+                                icon={
+                                    isLiked ? (
+                                        <BsFillSuitHeartFill />
+                                    ) : (
+                                        <BsSuitHeart />
+                                    )
+                                }
                             />
                             <IconButton
                                 variant={'ghost'}
@@ -69,27 +154,38 @@ const HomePagePost: FC<HomePagePostProps> = ({ onOpen }) => {
                             />
                         </Box>
                     </Flex>
+                    <Box mx={2.5} mb={2.5}>
+                        <Text letterSpacing={'wide'} fontWeight={'thin'}>
+                            {post.likes.length}{' '}
+                            {post.likes.length === 1 ? 'like' : 'likes'}
+                        </Text>
+                    </Box>
                     <Box mx={2.5}>
                         <Text letterSpacing={'wide'} fontWeight={'thin'}>
-                            Lorem ipsum dolor, sit amet consectetur adipisicing
-                            elit. Perspiciatis qui dicta, nostrum, ipsum
-                            nesciunt tempore vel ipsa, rem maiores dolorem
-                            consequuntur? Officia ex quae veritatis ab corrupti
-                            aliquid saepe ipsum?
+                            {post.caption}
                         </Text>
-                        <Link color={'gray.500'} fontSize='sm' mt={2.5}>
-                            View all comments
-                        </Link>
+                        <Button
+                            variant={'link'}
+                            onClick={onOpen}
+                            color={'gray.500'}
+                            fontSize='sm'
+                            mt={2.5}>
+                            {post.numberOfComments === 1
+                                ? 'view 1 comment'
+                                : `view all ${post.numberOfComments} comments`}
+                        </Button>
                         <Text color={'gray.500'} fontSize='xs' mt={2.5}>
-                            17 hours ago
+                            {convertTimeToHoursAgo(post.createdAt)} hours ago
                         </Text>
                     </Box>
                 </Box>
-
-                <Box>
-                    <CommentInputBar />
-                </Box>
             </Stack>
+            <FullImageDisplayModal
+                onClose={onClose}
+                isOpen={isOpen}
+                postId={post.id}
+                creatorName={post.username}
+            />
         </Box>
     );
 };

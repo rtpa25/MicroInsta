@@ -6,6 +6,7 @@ interface PostAttrs {
     caption?: string | undefined;
     userId: string;
     username: string;
+    avatarUrl?: string | undefined;
 }
 
 interface PostDoc extends Document {
@@ -13,6 +14,7 @@ interface PostDoc extends Document {
     caption?: string | undefined;
     userId: string;
     username: string;
+    avatarUrl?: string | undefined;
     createdAt: string;
     updatedAt: string;
     version: number;

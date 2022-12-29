@@ -7,20 +7,19 @@ import {
     Text,
     useDisclosure,
 } from '@chakra-ui/react';
+import axios from 'axios';
 import { useRouter } from 'next/router';
-import { AiOutlineHome, AiOutlineSearch } from 'react-icons/ai';
+import { AiOutlineSearch } from 'react-icons/ai';
 import { BiImageAdd, BiLogOutCircle } from 'react-icons/bi';
 import { BsPersonPlus } from 'react-icons/bs';
 import { CgProfile } from 'react-icons/cg';
-import { useGetCurrentUser } from '../hooks/use-get-current-user';
+import useSWRMutation from 'swr/mutation';
+import { useGetCurrentUserProfile } from '../hooks/use-get-current-user-profile';
 import { ACCENT_COLOR_LIGHT } from '../styles/consts';
 import CreatePostModal from './create-post-modal';
+import NotificationsModal from './friend-request-modal';
 import HeaderLogo from './header-logo';
-import NotificationsModal from './notifications-modal';
 import ProfileSearchModal from './profile-search-modal';
-import useSWRMutation from 'swr/mutation';
-import axios from 'axios';
-import { useGetCurrentUserProfile } from '../hooks/use-get-current-user-profile';
 
 const signoutRequest = async (url: string) => {
     return axios({
@@ -135,7 +134,7 @@ const AppBar = () => {
                 onClose={profileSearchModalOnClose}
             />
             <NotificationsModal
-                friendRequests={ProfileData?.data.friendRequests}
+                friendRequests={ProfileData?.data.friendRequests || []}
                 isOpen={notificationModalIsOpen}
                 onClose={notificationModalOnClose}
             />
