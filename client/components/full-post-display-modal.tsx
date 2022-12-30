@@ -24,6 +24,7 @@ import { ACCENT_COLOR } from '../styles/consts';
 import { DetailedPostType } from '../types/post';
 import CommentInputBar from './comment-input-bar';
 import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
+import { useRouter } from 'next/router';
 
 interface FullImageDisplayModalProps {
     onClose: () => void;
@@ -71,6 +72,7 @@ const FullImageDisplayModal: FC<FullImageDisplayModalProps> = ({
     postId,
     creatorName,
 }) => {
+    const router = useRouter();
     const { data } = useSWR(`/api/query/detail/${postId}`, fetchPostDetails);
     const { data: currentUserProfileData } = useGetCurrentUserProfile();
     const {
@@ -166,6 +168,11 @@ const FullImageDisplayModal: FC<FullImageDisplayModalProps> = ({
                                             <ButtonGroup>
                                                 <IconButton
                                                     aria-label={'edit'}
+                                                    onClick={() =>
+                                                        router.push(
+                                                            `/posts/edit/${postId}`
+                                                        )
+                                                    }
                                                     icon={<AiOutlineEdit />}
                                                 />
                                                 <IconButton

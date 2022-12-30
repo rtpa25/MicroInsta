@@ -10,11 +10,10 @@ export class PostUpdatedEventListener extends Listener<PostUpdatedEvent> {
         data: PostUpdatedEvent['data'],
         msg: Message
     ): Promise<void> {
-        const { caption, id, version } = data;
+        const { caption, id } = data;
 
         const post = await Post.findOne({
             _id: id,
-            version: version - 1,
         });
 
         if (!post) {

@@ -24,6 +24,8 @@ export class PostCreatedEventListener extends Listener<PostCreatedEvent> {
 
         await post.save();
 
+        console.log(post);
+
         msg.ack();
     }
 }

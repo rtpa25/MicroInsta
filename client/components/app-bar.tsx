@@ -16,7 +16,6 @@ import { CgProfile } from 'react-icons/cg';
 import useSWRMutation from 'swr/mutation';
 import { useGetCurrentUserProfile } from '../hooks/use-get-current-user-profile';
 import { ACCENT_COLOR_LIGHT } from '../styles/consts';
-import CreatePostModal from './create-post-modal';
 import NotificationsModal from './friend-request-modal';
 import HeaderLogo from './header-logo';
 import ProfileSearchModal from './profile-search-modal';
@@ -29,11 +28,6 @@ const signoutRequest = async (url: string) => {
 };
 
 const AppBar = () => {
-    const {
-        isOpen: createPostModalIsOpen,
-        onOpen: cretePostModalOnOpen,
-        onClose: createPostModalOnClose,
-    } = useDisclosure();
     const {
         isOpen: profileSearchModalIsOpen,
         onOpen: profileSearchModalOnOpen,
@@ -92,7 +86,7 @@ const AppBar = () => {
                         <IconButton
                             size={'lg'}
                             variant={'ghost'}
-                            onClick={cretePostModalOnOpen}
+                            onClick={() => router.push('/posts/create')}
                             aria-label={'add post'}
                             icon={<BiImageAdd />}
                         />
@@ -125,10 +119,6 @@ const AppBar = () => {
                     </ButtonGroup>
                 </Flex>
             </Flex>
-            <CreatePostModal
-                isOpen={createPostModalIsOpen}
-                onClose={createPostModalOnClose}
-            />
             <ProfileSearchModal
                 isOpen={profileSearchModalIsOpen}
                 onClose={profileSearchModalOnClose}

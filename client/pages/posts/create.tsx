@@ -1,32 +1,19 @@
-import {
-    Box,
-    Button,
-    Flex,
-    Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalHeader,
-    ModalOverlay,
-    Text,
-} from '@chakra-ui/react';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { Form, Formik } from 'formik';
-import { FC, useState } from 'react';
+import { Box, Button, Flex, Heading, Input, Text } from '@chakra-ui/react';
+import AppBar from '../../components/app-bar';
+import { GetServerSidePropsContext } from 'next';
+import { requireAuth } from '../../components/hoc/require-auth';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { Formik, Form } from 'formik';
 import { v4 } from 'uuid';
-import { ACCENT_COLOR, ACCENT_COLOR_LIGHT } from '../styles/consts';
-import { storage } from '../utils/firebase';
-import InputField from './input-field';
-import axios from 'axios';
-import { Post } from '../types/post';
+import InputField from '../../components/input-field';
+import { ACCENT_COLOR, ACCENT_COLOR_LIGHT } from '../../styles/consts';
+import { storage } from '../../utils/firebase';
+import { useState } from 'react';
+import { useAppSelector } from '../../hooks/use-redux';
 import useSWRMutation from 'swr/mutation';
-import { useAppSelector } from '../hooks/use-redux';
-
-interface CreatePostModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-}
+import axios from 'axios';
+import { Post } from '../../types/post';
+import { useRouter } from 'next/router';
 
 interface CreatePostRequestBody {
     arg: {
@@ -46,7 +33,7 @@ const createPostRequest = async (
     });
 };
 
-const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
+const CreatePost = () => {
     const [imageUrl, setImageUrl] = useState<string>('');
 
     const { trigger, isMutating } = useSWRMutation(
@@ -56,25 +43,25 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
 
     const swr = useAppSelector((state) => state.indexPaginatedSWR.swr);
 
+    const router = useRouter();
+
     return (
-        <Modal
-            isCentered
-            size={'3xl'}
-            onClose={onClose}
-            isOpen={isOpen}
-            motionPreset='slideInBottom'>
-            <ModalOverlay />
-            <ModalContent bgColor={'black'}>
-                <ModalHeader
-                    mx={'4%'}
-                    fontSize='4xl'
-                    fontWeight={'thin'}
-                    fontFamily={'serif'}
-                    color={ACCENT_COLOR}>
-                    Create Post
-                </ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
+        <Box>
+            <AppBar />
+            <Flex justifyContent={'center'} alignItems='center' h={'90vh'}>
+                <Box
+                    bgColor={'black'}
+                    w={['100%', '90%', '80%', '70%']}
+                    px={4}
+                    py={10}>
+                    <Heading
+                        mx={'4%'}
+                        fontSize='4xl'
+                        fontWeight={'thin'}
+                        fontFamily={'serif'}
+                        color={ACCENT_COLOR}>
+                        Create Post
+                    </Heading>
                     <Formik
                         initialValues={{ caption: '' }}
                         onSubmit={async (values, { setErrors }) => {
@@ -86,11 +73,11 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
                             }
                             try {
                                 await trigger({ imageUrl, caption });
+                                router.push('/');
                                 swr?.mutate();
                             } catch (error) {
                                 setErrors({ caption: 'Something went wrong' });
                             }
-                            onClose();
                         }}>
                         {({ isSubmitting }) => (
                             <Box mx={'5%'} mb={'2%'}>
@@ -140,7 +127,9 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
                                         <Button
                                             mt={10}
                                             type='submit'
-                                            isLoading={isSubmitting}
+                                            isLoading={
+                                                isMutating || isSubmitting
+                                            }
                                             color={ACCENT_COLOR}
                                             borderColor={ACCENT_COLOR}
                                             variant={'outline'}>
@@ -149,10 +138,11 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
                                         <Text color={'gray.400'}>
                                             Changed your mind?{' '}
                                             <Button
-                                                isLoading={isMutating}
                                                 color={ACCENT_COLOR_LIGHT}
                                                 variant='link'
-                                                onClick={onClose}>
+                                                onClick={() =>
+                                                    router.push('/')
+                                                }>
                                                 Home
                                             </Button>
                                         </Text>
@@ -161,10 +151,18 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
                             </Box>
                         )}
                     </Formik>
-                </ModalBody>
-            </ModalContent>
-        </Modal>
+                </Box>
+            </Flex>
+        </Box>
     );
 };
 
-export default CreatePostModal;
+export const getServerSideProps = requireAuth(
+    async ({ req }: GetServerSidePropsContext) => {
+        return {
+            props: {},
+        };
+    }
+);
+
+export default CreatePost;
