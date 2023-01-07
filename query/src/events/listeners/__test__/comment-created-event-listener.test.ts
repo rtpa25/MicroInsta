@@ -14,6 +14,7 @@ const setup = async () => {
         userId: new mongoose.Types.ObjectId().toHexString(),
         postId: new mongoose.Types.ObjectId().toHexString(),
         content: 'test comment',
+        username: 'test',
     };
 
     // @ts-ignore
