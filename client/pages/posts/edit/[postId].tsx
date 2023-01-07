@@ -61,7 +61,7 @@ const EditPost = () => {
                                 router.push('/');
                                 swr?.mutate();
                             } catch (error) {
-                                setErrors({ caption: 'Something went wrong' });
+                                setErrors({ caption: 'Something went wrong!' });
                             }
                         }}>
                         {({ isSubmitting }) => (
