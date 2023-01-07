@@ -9,7 +9,7 @@ it('deletes a comment with valid inputs', async () => {
     await request(app)
         .post('/api/comments')
         .set('Cookie', userCookie)
-        .send({ postId, content: 'test' });
+        .send({ postId, content: 'comment content', username: 'test' });
 
     const resp = await request(app)
         .delete('/api/comments')
@@ -42,7 +42,7 @@ it('publishes an event on successful deletion', async () => {
     await request(app)
         .post('/api/comments')
         .set('Cookie', userCookie)
-        .send({ postId, content: 'test' });
+        .send({ postId, content: 'comment content', username: 'test' });
 
     await request(app)
         .delete('/api/comments')

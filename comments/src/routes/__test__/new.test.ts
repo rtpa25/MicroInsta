@@ -25,7 +25,7 @@ it('creates a comment with valid inputs', async () => {
     const resp = await request(app)
         .post('/api/comments')
         .set('Cookie', userCookie)
-        .send({ postId, content: 'comment content' })
+        .send({ postId, content: 'comment content', username: 'test' })
         .expect(201);
 
     expect(resp.body.postId).toEqual(postId);
@@ -39,7 +39,7 @@ it('successfully publishes an event', async () => {
     await request(app)
         .post('/api/comments')
         .set('Cookie', userCookie)
-        .send({ postId, content: 'comment content' })
+        .send({ postId, content: 'comment content', username: 'test' })
         .expect(201);
 
     expect(natsWrapper.client.publish).toHaveBeenCalled();
