@@ -1,0 +1,14 @@
+name: tests-posts
+
+on:
+  pull_request:
+    paths:
+      - "posts/**"
+      - ".github/workflows/test-posts.yaml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: cd posts && npm install && npm run test:ci

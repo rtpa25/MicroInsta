@@ -1,0 +1,14 @@
+name: tests-profile
+
+on:
+  pull_request:
+    paths:
+      - "profile/**"
+      - ".github/workflows/test-profile.yaml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: cd profile && npm install && npm run test:ci

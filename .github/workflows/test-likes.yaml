@@ -1,0 +1,14 @@
+name: tests-likes
+
+on:
+  pull_request:
+    paths:
+      - "likes/**"
+      - ".github/workflows/test-likes.yaml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: cd likes && npm install && npm run test:ci

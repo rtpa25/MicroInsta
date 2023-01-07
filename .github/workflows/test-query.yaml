@@ -1,0 +1,14 @@
+name: tests-query
+
+on:
+  pull_request:
+    paths:
+      - "query/**"
+      - ".github/workflows/test-query.yaml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: cd query && npm install && npm run test:ci
