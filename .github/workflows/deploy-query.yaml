@@ -1,0 +1,22 @@
+name: deploy-query
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "query/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: cd query && docker build -t rtpa25/query .
+      - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - run: docker push rtpa25/query
+      - uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - run: doctl kubernetes cluster kubeconfig save micro-insta
+      - run: kubectl rollout restart deployments query-depl
