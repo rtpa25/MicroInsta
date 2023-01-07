@@ -52,12 +52,13 @@ it('returns the details of a post and comments associated to it', async () => {
         postId,
         userId,
         content: 'test comment',
+        username,
     });
 
     await comment.save();
 
     const res = await request(app)
-        .get(`/api/query/${postId}`)
+        .get(`/api/query/detail/${postId}`)
         .set('Cookie', global.signin(userId))
         .expect(200);
 

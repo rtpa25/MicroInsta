@@ -41,6 +41,7 @@ it('deletes the comment and updates the post entity when receives comment delete
         postId: postId,
         userId: new mongoose.Types.ObjectId().toHexString(),
         content: 'test comment',
+        username: 'test',
     }).save();
 
     await listener.onMessage(data, msg);
