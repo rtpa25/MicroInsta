@@ -6,7 +6,7 @@ export const buildClient = (
 ): AxiosInstance => {
     if (typeof window === 'undefined') {
         return axios.create({
-            baseURL: 'http://www.insta.nyka.site',
+            baseURL: 'http://www.insta.nyka.site/',
             headers: req!.headers,
         });
     } else {
