@@ -32,7 +32,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-
 ---
 #service "auth-srv" created that enables networking between pods
 apiVersion: v1

@@ -15,7 +15,6 @@ spec:
       containers:
         - name: profile-mongo
           image: mongo #DockerHub image
-
 ---
 apiVersion: v1
 kind: Service

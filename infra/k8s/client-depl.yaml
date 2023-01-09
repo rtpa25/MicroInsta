@@ -51,6 +51,7 @@ spec:
                 secretKeyRef:
                   name: app-id
                   key: NEXT_PUBLIC_FIREBASE_APP_ID
+
 ---
 #service "client-svc" created that enables networking between pods
 apiVersion: v1
