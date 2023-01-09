@@ -25,8 +25,6 @@ const ShowAllFriendsModalBodyCard: FC<ShowAllFriendsModalBodyCardProps> = ({
             <Box
                 onClick={() => {
                     router.push(`/profile/${friend.userId}`);
-                    //refresh the screen
-                    window.location.reload();
                     onClose();
                 }}
                 cursor='pointer'>
