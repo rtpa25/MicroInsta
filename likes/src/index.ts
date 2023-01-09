@@ -38,7 +38,6 @@ const bootstrap = async () => {
 
         process.on('SIGINT', () => natsWrapper.client.close());
         process.on('SIGTERM', () => natsWrapper.client.close());
-        process.on('SIGKILL', () => natsWrapper.client.close());
     } catch (error) {
         console.error(error);
     }
