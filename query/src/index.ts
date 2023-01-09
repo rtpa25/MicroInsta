@@ -45,6 +45,7 @@ const bootstrap = async () => {
 
         process.on('SIGINT', () => natsWrapper.client.close());
         process.on('SIGTERM', () => natsWrapper.client.close());
+        process.on('SIGKILL', () => natsWrapper.client.close());
 
         new PostCreatedEventListener(natsWrapper.client).listen();
         new PostDeleteDEventListener(natsWrapper.client).listen();
