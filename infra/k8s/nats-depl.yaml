@@ -30,6 +30,7 @@ spec:
               "-cid", # cluster id
               "insta",
             ]
+
 ---
 apiVersion: v1
 kind: Service
