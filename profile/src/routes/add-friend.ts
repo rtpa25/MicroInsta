@@ -28,6 +28,10 @@ router.put(
         const { senderId } = req.params;
         const { receiverId } = req.body;
 
+        if (!senderId || !receiverId) {
+            throw new BadRequestError('Invalid request');
+        }
+
         const senderProfile = await Profile.findOne({ userId: senderId });
 
         if (!senderProfile) {

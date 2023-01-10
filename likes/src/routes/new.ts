@@ -1,4 +1,8 @@
-import { requireAuth, validateRequest } from '@micro_insta/common';
+import {
+    BadRequestError,
+    requireAuth,
+    validateRequest,
+} from '@micro_insta/common';
 import { Request, Response, Router } from 'express';
 import { body } from 'express-validator';
 import { Like } from '../model/like';
@@ -19,6 +23,10 @@ router.post(
     async (req: Request<{}, {}, NewLikeRequestPostBody>, res: Response) => {
         const { postId } = req.body;
         const userId = req.currentUser!.id;
+
+        if (!postId || !userId) {
+            throw new BadRequestError('Invalid request');
+        }
 
         const like = Like.build({ postId, userId });
 
