@@ -6,5 +6,6 @@ export const toErrorMap = (errors: Error[]) => {
     errors.forEach(({ message, field }) => {
         errorMap[field || ''] = message;
     });
+
     return errorMap;
 };
