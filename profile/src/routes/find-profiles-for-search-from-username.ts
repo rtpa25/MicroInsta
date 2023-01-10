@@ -1,4 +1,8 @@
-import { requireAuth, validateRequest } from '@micro_insta/common';
+import {
+    BadRequestError,
+    requireAuth,
+    validateRequest,
+} from '@micro_insta/common';
 import { Request, Response, Router } from 'express';
 import { query } from 'express-validator';
 import { Profile } from '../model/profile';
@@ -12,6 +16,11 @@ router.get(
     validateRequest,
     async (req: Request<{}, {}, {}, { username: string }>, res: Response) => {
         const { username } = req.query;
+
+        if (!username) {
+            throw new BadRequestError('Invalid request');
+        }
+
         const profiles = await Profile.find({
             username: { $regex: username, $options: 'i' },
         });

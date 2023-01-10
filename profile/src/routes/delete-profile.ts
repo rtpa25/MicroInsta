@@ -18,6 +18,10 @@ router.delete(
     async (req: Request<{ userId: string }>, res: Response) => {
         const { userId } = req.params;
 
+        if (!userId) {
+            throw new BadRequestError('Invalid request');
+        }
+
         const currentUserId = req.currentUser!.id;
 
         const profile = await Profile.findOne({ userId });

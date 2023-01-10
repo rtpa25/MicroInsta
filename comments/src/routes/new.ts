@@ -1,4 +1,8 @@
-import { requireAuth, validateRequest } from '@micro_insta/common';
+import {
+    BadRequestError,
+    requireAuth,
+    validateRequest,
+} from '@micro_insta/common';
 import { Request, Response, Router } from 'express';
 import { body } from 'express-validator';
 import { Comment } from '../model/comment';
@@ -32,6 +36,10 @@ router.post(
     async (req: Request<{}, {}, CreateCommentRequestBody>, res: Response) => {
         const { content, postId, username } = req.body;
         const currentUserId = req.currentUser!.id;
+
+        if (!currentUserId || !postId || !username || !content) {
+            throw new BadRequestError('Invalid request');
+        }
 
         const comment = Comment.build({
             content,

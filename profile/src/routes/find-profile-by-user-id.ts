@@ -17,6 +17,10 @@ router.get(
     async (req: Request<{ userId: string }>, res: Response) => {
         const { userId } = req.params;
 
+        if (!userId) {
+            throw new BadRequestError('Invalid request');
+        }
+
         const profile = await Profile.findOne({ userId })
             .populate('friends')
             .populate('friendRequests');

@@ -52,6 +52,10 @@ router.put(
         const { userId } = req.params;
         const { fullName, bio, avatarUrl } = req.body;
 
+        if (!userId || !fullName || !bio || !avatarUrl) {
+            throw new BadRequestError('invalid request');
+        }
+
         const existingProfile = await Profile.findOne({ userId });
 
         if (!existingProfile) {

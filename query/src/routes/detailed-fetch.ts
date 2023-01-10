@@ -1,4 +1,8 @@
-import { requireAuth, validateRequest } from '@micro_insta/common';
+import {
+    BadRequestError,
+    requireAuth,
+    validateRequest,
+} from '@micro_insta/common';
 import { Request, Response, Router } from 'express';
 import { param } from 'express-validator';
 import { Post } from '../model/post';
@@ -13,6 +17,10 @@ router.get(
     validateRequest,
     async (req: Request<{ postId: string }>, res: Response) => {
         const { postId } = req.params;
+
+        if (!postId) {
+            throw new BadRequestError('Invalid request');
+        }
 
         const post = await Post.findById(postId);
 
