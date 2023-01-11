@@ -1,4 +1,4 @@
-import { Stan, connect } from 'node-nats-streaming';
+import nats, { Stan } from 'node-nats-streaming';
 
 class NatsWrapper {
     private _client?: Stan;
@@ -12,7 +12,7 @@ class NatsWrapper {
     }
 
     connect(clusterId: string, clientId: string, url: string) {
-        this._client = connect(clusterId, clientId, { url });
+        this._client = nats.connect(clusterId, clientId, { url });
 
         return new Promise<void>((resolve, reject) => {
             this.client.on('connect', () => {
